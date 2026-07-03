@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valpre Capital — Project & Entity Map</title>
+<style>
+  :root{
+    --bg:#F2F5FB; --bg2:#E6EDF6; --card:#FFFFFF; --panel:#FFFFFF;
+    --navy:#0F275D; --navy2:#1F3768; --navy3:#233869;
+    --blue:#4488B0; --blue2:#2E5485; --blue3:#6D94AD;
+    --grey:#626264; --grey2:#8C8F8F; --steel:#B5C6DA; --light:#F2F2F2;
+    --ink:#1F3768; --muted:#626264;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:'Segoe UI',system-ui,Arial,sans-serif; overflow:hidden; height:100vh;}
+  header{position:fixed; top:0; left:0; right:0; z-index:50; display:flex; gap:14px; align-items:center;
+    padding:12px 18px; background:rgba(255,255,255,.94); backdrop-filter:blur(6px); border-bottom:2px solid var(--steel);}
+  header h1{font-size:16px; font-weight:700; letter-spacing:.4px; color:var(--navy);}
+  header h1 span{color:var(--blue2); font-weight:500;}
+  #search{background:var(--bg2); border:1px solid var(--steel); color:var(--navy); border-radius:8px; padding:7px 12px; width:250px; font-size:13px;}
+  #search:focus{outline:2px solid var(--blue);}
+  .legend{display:flex; gap:9px; flex-wrap:wrap; font-size:11px; color:var(--grey); margin-left:auto;}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px;}
+  .hint{font-size:11px; color:var(--grey2);}
+  #viewport{position:absolute; inset:0; top:54px; cursor:grab; overflow:hidden;}
+  #viewport.dragging{cursor:grabbing;}
+  #canvas{position:absolute; transform-origin:0 0; padding:40px;}
+  .boardrow{display:flex; gap:30px; align-items:flex-start; flex-wrap:nowrap;}
+  .board{background:var(--card); border:1px solid var(--steel); border-radius:16px; padding:18px 20px 22px;
+    min-width:350px; max-width:440px; flex-shrink:0; box-shadow:0 3px 14px rgba(15,39,93,.08);}
+  .board h2{font-size:15px; margin-bottom:2px; color:var(--navy);}
+  .board .sub{font-size:11px; color:var(--grey); margin-bottom:14px; line-height:1.5;}
+  .board.group{border-top:4px solid var(--navy);}
+  .badge{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; border-radius:4px; padding:2px 6px; margin-left:6px; vertical-align:2px;}
+  .b-live{background:#E0EFE6; color:#1E6B43;} .b-sold{background:#F5EBD6; color:#8A6A1F;}
+  .b-exit{background:var(--light); color:var(--grey);} .b-form{background:var(--bg2); color:var(--blue2);}
+  .b-dead{background:#F5E0E4; color:#9C3A50;}
+  .node{position:relative; margin:7px 0;}
+  .node .card{background:var(--card); border:1px solid var(--steel); border-left:4px solid var(--grey2);
+    border-radius:9px; padding:8px 11px; cursor:pointer; transition:transform .08s, box-shadow .12s;}
+  .node .card:hover{transform:translateX(2px); box-shadow:0 2px 8px rgba(15,39,93,.16);}
+  .node .card.hl{outline:2px solid var(--blue); background:var(--bg2);}
+  .card .nm{font-size:12.5px; font-weight:600; color:var(--navy);}
+  .card .rl{font-size:10.5px; color:var(--grey); margin-top:2px; line-height:1.45;}
+  .card .ow{font-size:10px; color:var(--blue2); margin-top:2px; font-weight:600;}
+  .card .bk{font-size:10px; color:var(--blue); margin-top:2px;}
+  .card .fl{font-size:10px; color:#9C3A50; margin-top:2px;}
+  .kids{margin-left:26px; border-left:1.5px solid var(--steel); padding-left:14px;}
+  .juris-UK{border-left-color:var(--blue2)!important;}
+  .juris-Ireland{border-left-color:var(--blue)!important;}
+  .juris-Cayman{border-left-color:var(--grey2)!important;}
+  .juris-Greece{border-left-color:var(--navy)!important;}
+  .juris-Luxembourg{border-left-color:var(--blue3)!important;}
+  .juris-Monaco{border-left-color:var(--grey)!important;}
+  .juris-BVI{border-left-color:var(--grey)!important;}
+  .juris-Spain{border-left-color:var(--steel)!important;}
+  .juris-Unverified{border-left-color:var(--steel)!important; border-left-style:dashed;}
+  #panel{position:fixed; top:54px; right:0; bottom:0; width:370px; background:var(--panel); border-left:2px solid var(--steel);
+    padding:22px; transform:translateX(100%); transition:transform .18s ease; z-index:60; overflow-y:auto; box-shadow:-4px 0 18px rgba(15,39,93,.10);}
+  #panel.open{transform:translateX(0);}
+  #panel h3{font-size:16px; margin-bottom:4px; color:var(--navy);}
+  #panel .close{position:absolute; top:14px; right:16px; background:none; border:none; color:var(--grey); font-size:18px; cursor:pointer;}
+  #panel dl{margin-top:14px;}
+  #panel dt{font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--grey2); margin-top:13px;}
+  #panel dd{font-size:13px; margin-top:3px; line-height:1.55; color:var(--ink);}
+  #panel .flagbox{margin-top:16px; background:#FBF0F2; border:1px solid #E5C3CB; border-radius:8px; padding:10px 12px; font-size:12px; color:#9C3A50; line-height:1.5;}
+  footer{position:fixed; bottom:0; left:0; right:0; padding:6px 18px; font-size:10.5px; color:var(--grey2);
+    background:rgba(255,255,255,.94); border-top:1px solid var(--steel); z-index:50;}
+</style>
+</head>
+<body>
+<header>
+  <h1>VALPRE CAPITAL <span>— Project & Entity Map v2</span></h1>
+  <input id="search" type="text" placeholder="Search entity, bank, %, project…">
+  <div class="legend">
+    <span><i style="background:var(--blue2)"></i>UK</span><span><i style="background:var(--blue)"></i>Ireland</span>
+    <span><i style="background:var(--grey2)"></i>Cayman</span><span><i style="background:var(--navy)"></i>Greece</span>
+    <span><i style="background:var(--blue3)"></i>Luxembourg</span><span><i style="background:var(--grey)"></i>Monaco/BVI</span>
+    <span><i style="background:var(--steel)"></i>Unverified</span>
+  </div>
+  <span class="hint">drag to pan · scroll to zoom · click a card</span>
+</header>
+
+<div id="viewport"><div id="canvas"></div></div>
+
+<aside id="panel">
+  <button class="close" onclick="closePanel()">✕</button>
+  <div id="panelBody"></div>
+</aside>
+
+<footer>v2 — verified from structure charts (Machas Athens V5 Oct-25 · VC PCL1 SCSp Nov-25 · VC PBSA1 Dec-25 · VC PBSA2 Nov-25 · Group Apr-25 · Op Group Feb-26 · VCDREF Apr-25 · Kilt · VCLG). Ownership % as charted. Bank names & purposes only. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
+
+<script>
+const DATA = [
+ {board:"Group / Sponsor Level", badge:"", sub:"Verified: 00 VC Group.pptx, 02 VCI.pptx, group charts Apr 2025, VCUK chart Oct 2025. Sponsor chain: principals → MDOA (Cayman) → SCP MDOA (Monaco) → VCI (Lux).", group:true, nodes:[
+   {nm:"MDOA Limited", j:"Cayman", role:"Sponsor HoldCo", own:"Mazen Abou Chakra 50% / Muhannad Hariri 50%", banks:[], ev:"00 VC Group.pptx", kids:[
+     {nm:"SCP MDOA", j:"Monaco", role:"Intermediate holding (Monaco SCP)", own:"MDOA 100%", banks:[], ev:"02 VCI.pptx; SCPMDOA_Certification.pdf", kids:[
+       {nm:"Valpre Capital Investments SARL (VCI)", j:"Luxembourg", role:"Investment HoldCo — RCS B255894. Holds: VCA SA 78%, NREK1 18.67%, EVC Energy SA 42.5%, VC Pharma 66.66%, Dublin Fund LP 3.5%, VC PCL1 Class A 90%", own:"SCP MDOA 99.9% / MDOA 0.1%", banks:["Arab Bank — account","Banque BEMO — account"], ev:"02 VCI.pptx", kids:[]},
+     ]},
+   ]},
+   {nm:"Valpre Capital UK Limited (VCUK)", j:"UK", role:"FCA-hosted manager/GP co (CN 11872154) — operating hub, advisory agreements, compliance home", own:"4 sponsors × 350 shares: M. Abou Chakra, R. Aslan, M.A. Beyhum, A.M. Hariri", banks:["Barclays — main operating account"], ev:"VCUK Structure Chart_251025.pptx", kids:[]},
+   {nm:"Valpre Capital Cayman Limited (VCCL)", j:"Cayman", role:"Cayman HoldCo — owns VCCL GP 100%; Dublin Fund Class B + 31.96% Class A", own:"M. Abou Chakra 40% / SCP MDOA 40% / R. Aslan 20%", banks:["Arab Bank — account"], ev:"03 VCDREF.pptx (VCCL chart pdf is scanned image)", kids:[]},
+   {nm:"2026 Reorg NEWCOs (planned)", j:"Unverified", role:"Op Group chart Feb 2026: Valpre Capital UK HoldCo (owners AMH, MAC, Erik Arveschoug, Sami Al Hakim, RA; 100% Class B of VCUK — legacy TKY/Roc economics stay in VCUK Class A) · Valpre Capital Luxembourg SARL (unregulated invoicing co) · Valpre Capital Spain SA/SL (SGEIC/AIFM applicant) · Silver Birch SPV (100% UK HoldCo)", own:"—", banks:[], badge:"form", flag:"All in formation — confirm incorporations as they complete", ev:"VC Operating Group Structure Chart_260215.pptx", kids:[]},
+   {nm:"Valpre Capital SAL", j:"Unverified", role:"Beirut regulated management co (CMA licence docs) — not on any current group chart", own:"—", banks:["Bank of Beirut — capital subscription"], flag:"Not on charts — status/dormancy to confirm", kids:[]},
+   {nm:"LEGC · Evolv Properties · EVC Greece 1 SARL", j:"Unverified", role:"Folders exist in 03-Legal but appear on no structure chart read this pass (Evolv = Irish services/nominee co for Dublin SPVs; LEGC unidentified; EVC Greece 1 = Lux, intercompany ledgers only)", own:"—", banks:[], flag:"Unverified / possibly dormant — review", kids:[]},
+ ]},
+ {board:"05 · Athens Aparthotel (YotelPad)", badge:"live", sub:"Machas final structure (V5, Oct/Nov 2025). 3 buildings: Epikourou 62 rooms, Miltiadou 37, Iras 14. PropCos invoice all revenue; LeaseCos rent floors (fixed min + % turnover); YOTEL HMA at OpCo; 6 Ministry of Tourism permits.", nodes:[
+   {nm:"Valpre Capital Athens S.A. (VCA)", j:"Luxembourg", role:"Project HoldCo ('Lux HoldCo') — owns 100% of the Greek stack", own:"VCI SARL 78% / Investors 22%", banks:[], ev:"VCA SA Structure Chart_2025-01-23.pdf; Valpre Athens Structure Chart V5.pdf", kids:[
+     {nm:"VCGP1 — Valpre Capital Grea Properties 1 Single Member S.A.", j:"Greece", role:"PropCo — EPIKOUROU building (62 rooms; operates 29 units itself: 4th/5th/6th/8th floors). Ex-ZOIA 28 S.M.S.A., acquired from Zoia GR 6 Holding Ltd (Cyprus), SPA 28-Nov-2024. TIN 801041393", own:"VCA 100%", banks:["Attica Bank — acquisition/bond financing (now CrediaBank)"], ev:"Machas chart + Zoia SPA closing bible", kids:[
+       {nm:"VCGP Epikourou 1 Single Member P.C.", j:"Greece", role:"LeaseCo 1 — 15 units (3rd & 7th floors). TIN 803046095", own:"VCGP1 100%", banks:[], kids:[]},
+       {nm:"VCGP Epikourou 2 Single Member P.C.", j:"Greece", role:"LeaseCo 2 — 18 units (1st & 2nd floors). TIN 803046083", own:"VCGP1 100%", banks:[], kids:[]},
+     ]},
+     {nm:"VCGP2 — Valpre Capital Grea Properties 2 Single Member S.A.", j:"Greece", role:"PropCo — MILTIADOU building (37 rooms; operates 30 units). Ex-ZOIA 49 S.M.S.A., acquired from Zoia GR 12 Holding Ltd et al., 20-Nov-2024. TIN 801682657", own:"VCA 100%", banks:[], ev:"Machas chart + SPA", kids:[
+       {nm:"VCGP Miltiadou Single Member P.C.", j:"Greece", role:"LeaseCo — 7 units (1st floor). TIN 803046046", own:"VCGP2 100%", banks:[], kids:[]},
+     ]},
+     {nm:"VCGP3 — Grea Holdings 2 S.A. (renaming to Valpre Capital Grea Properties 3 S.M.S.A.)", j:"Greece", role:"PropCo — IRAS building (14 apartments, exploited at entity level, no LeaseCo)", own:"Under transfer to VCA 100%", banks:["CrediaBank — Iras financing"], flag:"Transfer & rename in progress — confirm completion", ev:"Machas chart; Credia Financing folder", kids:[]},
+     {nm:"VCGP OpCo Single Member P.C. (ex-Grea Properties S.M.P.C.)", j:"Greece", role:"OpCo — employs all staff, allocates costs across the 6 operating entities; YOTEL HMA sits here. TIN 801876010", own:"Under transfer to VCA (sole-partner resolutions + STA Oct 2025)", banks:["Credia Bank — e-banking mandate"], flag:"Transfer in progress", kids:[]},
+   ]},
+   {nm:"Metz", j:"Greece", role:"Exited sub-project", own:"—", banks:[], badge:"exit", kids:[]},
+ ]},
+ {board:"07 · Yeomans Square — Knightsbridge", badge:"live", sub:"VC PCL1 charts Nov 2025 + KPMG tax report Apr 2026. Asset: 60 Walton Street SW3 + 5 & 6 Glynde Mews, acquired £18m from Elms Investments. Lender: Unbranded Finance 2 LLP (acq ~£11m + dev ~£31m).", nodes:[
+   {nm:"VC PCL 1 SCSp", j:"Luxembourg", role:"Investor pooling partnership (registration in progress Nov 2025); feeds investor equity into VC PCL 1 Ltd", own:"GP: Valpre Capital (Luxembourg) GP SARL (to be incorporated); nominal LP: VCI SARL", banks:[], badge:"form", flag:"Registration + GP SARL incorporation to confirm", ev:"VC PCL1 Structure Chart_2025-11-20 (Luxembourg SCSp).pptx", kids:[
+     {nm:"VC PCL 1 Limited", j:"UK", role:"Project TopCo (CN 15182560). Class A: VCI 90% / VCUK 8% / third-party 2% (DDNs same split). Class B (carry): VCUK 75% / investors 25%; investors' £6.912m = 69,120 B shares", own:"Per Nov-25 chart + KPMG steps", banks:["Barclays — account"], kids:[
+       {nm:"YSK IntermediateCo Limited", j:"UK", role:"Finance/borrower co — draws Unbranded acquisition + development facilities; will incorporate 14–20 unit SPVs (air leases per residential unit)", own:"VC PCL 1 Ltd 100%", banks:["Unbranded Finance 2 LLP — acq (~£11m) + dev (~£31m) facilities (lender)"], kids:[
+         {nm:"YSK FreeholdCo Limited", j:"UK", role:"Freehold PropCo (CN 17116674) — 60 Walton Street; future resi management co / VAT 'person converting'", own:"YSK IntermediateCo 100%", banks:[], kids:[]},
+         {nm:"Unit SPVs × 14–20 (planned)", j:"UK", role:"Per-unit air-lease SPVs to be incorporated under IntermediateCo", own:"—", banks:[], badge:"form", flag:"Not yet incorporated (KPMG Apr 2026)", kids:[]},
+       ]},
+     ]},
+   ]},
+ ]},
+ {board:"06 · The Roc Club — PBSA Rockingham", badge:"live", sub:"VC PBSA1 chart 26-Dec-2025 (latest). JV partner CKC Properties Ltd (Smart Street Furniture Ltd). Historic lender OakNorth.", nodes:[
+   {nm:"VC PBSA1 Limited", j:"UK", role:"Project TopCo — DDN & share issuer to 38 investors", own:"Investors 90.2% Class B / VCUK 8.7% Class A / CKC Properties Ltd 1.1% Class A (CKC holds A/C control & carry; invests 40% Class B + 60% DDNs)", banks:["Barclays — operating account","OakNorth — development lender"], ev:"VC PBSA1_Structure Chart_2025-12-26.pdf", kids:[
+     {nm:"ROC Newco 1 Limited", j:"UK", role:"HoldCo", own:"VC PBSA1 100%", banks:[], kids:[]},
+     {nm:"ROC Newco 2 Limited", j:"UK", role:"HoldCo", own:"VC PBSA1 100%", banks:[], kids:[]},
+     {nm:"ROC Devco Limited", j:"UK", role:"Development co (added in Dec-25 chart; sits under the Newco chain)", own:"100% within stack", banks:[], kids:[]},
+     {nm:"Alumrose LLP", j:"UK", role:"Owner of the land — members are the two Newcos. (Operator folder '06 Alumrose' relates here)", own:"Members: ROC Newco 1 + ROC Newco 2", banks:[], kids:[]},
+   ]},
+ ]},
+ {board:"08 · PBSA Platform — Amelia Street (VC PBSA2)", badge:"live", sub:"VC PBSA 2 chart 17-Nov-2025 (latest of 4 versions). JV with Katch Alternative Funds S.A. SICAV-RAIF (Lux B283471). Site 1.6/1.8 Elephant & Castle.", nodes:[
+   {nm:"VC PBSA 2 Limited", j:"UK", role:"Platform/project TopCo (CN 16768696)", own:"Class B: third-party investors 75% / Katch SICAV-RAIF 20% / VCUK 5% (Class A split ~95/5 — extraction ambiguous)", banks:[], flag:"Exact Class A/B mapping to confirm from chart", ev:"VC PBSA 2 Structure Chart_251117.pptx", kids:[
+     {nm:"HGL Amelia Street Limited", j:"UK", role:"Intermediate/JV co (CN 16856938) — between PBSA2 and the asset SPV", own:"Per chart (50% / 25%+25% legs shown)", banks:[], kids:[
+       {nm:"31 Amelia Street Limited", j:"UK", role:"Asset SPV (CN 16777388) — 31 Amelia Street PBSA development, Elephant & Castle", own:"Via HGL Amelia Street", banks:[], kids:[]},
+     ]},
+   ]},
+ ]},
+ {board:"03 · Three Kings Mayfair", badge:"live", sub:"Group deck Apr 2025 (TKY slide). DDN programme — Deep Discounted Notes due March 2027. Sales/completion phase.", nodes:[
+   {nm:"3KY MAYFAIR Limited", j:"UK", role:"Asset co — Mayfair site + members' club. VCUK loan facility secured by mortgage; DDNs due Mar 2027", own:"Investors Class A (64.28%/35.72% splits), Investor Class B 79.8%; VC TKY 12.5%", banks:[], ev:"Group deck 2025-04-01 TKY slide", kids:[]},
+   {nm:"VC TKY Limited", j:"UK", role:"Valpre investment vehicle into 3KY (holds Class A/B positions); statutory registers on file", own:"VCUK-linked", banks:["Barclays — project account + debt statements"], kids:[]},
+   {nm:"TKY LendCo Limited", j:"Cayman", role:"DDN funding vehicle for TKY; also shareholder in EVC Kilt (2,490 shares)", own:"—", banks:[], kids:[]},
+ ]},
+ {board:"04 · EVC Energy — Greek/UK Renewables", badge:"live", sub:"Kilt structure chart + group chart. Lux HoldCo EVC Energy SA (VCI 42.5%) over Greek pipeline SPVs; UK dev co EVC Kilt with 4 energy-centre SPVs. Kilt portfolio sold to Sonnedix 2025.", nodes:[
+   {nm:"EVC Energy SA", j:"Luxembourg", role:"Solar PV/BESS HoldCo → 100% multiple Greek SPVs (EG2–EG5, ES Energy, SVII pipeline; Helios raise; Elmya SA JV counterparty)", own:"VCI 42.5% + partners", banks:[], ev:"02 VCI.pptx / group chart", kids:[]},
+   {nm:"EVC Kilt Limited", j:"UK", role:"Solar/BESS development co — DDNs fund Strathruddie grid connection", own:"Elmya Energy UK 4,250 sh / TKY LendCo 2,490 / VCUK 1,760 / Zalana Investment Holdings (BVI) 1,500", banks:["Barclays — account"], badge:"exit", ev:"01 EVC Kilt Structure.pptx", kids:[
+     {nm:"Strathruddie Energy Centre Ltd", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
+     {nm:"Montreathmont Energy Centre", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
+     {nm:"Mannington Energy Centre Ltd", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
+     {nm:"IQ Energy Centre Ltd", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
+   ]},
+ ]},
+ {board:"01 · VCDREF — Dublin Fund", badge:"live", sub:"03 VCDREF.pptx (Apr 2025). Cayman fund; 23 Dublin assets; admin Apex; Northern Trust custody; AIB lending; Evolv Properties (IE) provides director/co-sec services to SPVs (not on chart).", nodes:[
+   {nm:"Valpre Capital Dublin Real Estate GP", j:"Cayman", role:"General Partner of the fund", own:"VCCL GP Limited (VCCL 100%)", banks:[], ev:"03 VCDREF.pptx", kids:[
+     {nm:"Valpre Capital Dublin Real Estate Fund LP", j:"Cayman", role:"Fund — Dublin residential/commercial portfolio. LPs incl. A.M. Hariri (Class A majority), VCCL 31.96% Class A + Class B, VCI 3.5%", own:"Per Apr-25 chart", banks:["Northern Trust — custody/banking","AIB — asset-level lending","Bank of Ireland — historic financing"], kids:[
+       {nm:"Asset Resi Limited", j:"Ireland", role:"SPV — residential assets", own:"Fund 100%", banks:["AIB — account"], kids:[]},
+       {nm:"Asset Resi 2 Limited", j:"Ireland", role:"SPV — residential", own:"Fund 100%", banks:["AIB — account"], kids:[]},
+       {nm:"Asset Resi 3 Limited", j:"Ireland", role:"SPV — residential (legal folder empty)", own:"Fund 100%", banks:[], flag:"Empty 03-Legal folder; Asset Resi 4 (2022 audits) absent entirely", kids:[]},
+       {nm:"Asset 401 Capel Limited", j:"Ireland", role:"SPV — 401 Capel Street", own:"Fund 100%", banks:[], kids:[]},
+       {nm:"Asset Commercial 2 Limited", j:"Ireland", role:"SPV — commercial asset", own:"Fund 100%", banks:["AIB — account","Arab Bank — account"], kids:[]},
+     ]},
+   ]},
+ ]},
+ {board:"02 · 10 Newmarket Square — Dublin", badge:"sold", sub:"Sold to MEAG (Jan 2026). 132-unit BTR, Dublin 8.", nodes:[
+   {nm:"NREK1 Limited", j:"Ireland", role:"Deal vehicle — 10 Newmarket Square BTR", own:"VCI 18.67% + JV partners (Revelate JVA/DMA)", banks:[], flag:"Post-sale wind-down status to confirm", ev:"Group chart + NREK1_Structure_Chart_Jan2023", kids:[]},
+ ]},
+ {board:"Liberty Gardens — Bristol", badge:"dead", sub:"Dead deal, live entities with Barclays accounts — wind-down candidates. VCLG structure chart.", nodes:[
+   {nm:"VC LG Limited", j:"UK", role:"Valpre-side HoldCo", own:"M. Abou Chakra + A.M. Hariri", banks:["Barclays — account"], ev:"01 VCLG_StructureChart.pptx", kids:[
+     {nm:"UVC Liberty Gardens Limited", j:"UK", role:"50/50 JV co — counterparty side: Brasted Investments Ltd ← Allington Holdings Ltd (K. Allington / K. Ewart 50/50)", own:"VC LG 50% / Brasted Investments 50%", banks:["Barclays — account"], kids:[]},
+   ]},
+ ]},
+ {board:"Legacy / Other", badge:"", sub:"", nodes:[
+   {nm:"Valpre Capital Pharma Limited", j:"Ireland", role:"Legacy pharma venture (2020)", own:"VCI 66.66%", banks:["AIB — account"], badge:"exit", kids:[]},
+ ]},
+];
+
+const badgeMap={live:["b-live","ACTIVE"],sold:["b-sold","SOLD"],exit:["b-exit","EXITED/DORMANT"],form:["b-form","IN FORMATION"],dead:["b-dead","DEAD DEAL"]};
+let all=[];
+function nodeHtml(n,path){
+  const id=all.length; all.push({...n,path});
+  const badge=n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:"";
+  const flag=n.flag?`<div class="fl">⚑ ${n.flag}</div>`:"";
+  const own=n.own&&n.own!=="—"?`<div class="ow">◈ ${n.own}</div>`:"";
+  const banks=n.banks&&n.banks.length?`<div class="bk">🏦 ${n.banks.map(b=>b.split(" — ")[0]).join(" · ")}</div>`:"";
+  let h=`<div class="node"><div class="card juris-${n.j}" data-id="${id}">
+    <div class="nm">${n.nm}${badge}</div><div class="rl">${n.j} · ${n.role}</div>${own}${banks}${flag}</div>`;
+  if(n.kids&&n.kids.length){h+=`<div class="kids">${n.kids.map(k=>nodeHtml(k,path+" › "+n.nm)).join("")}</div>`;}
+  return h+`</div>`;
+}
+function render(){
+  all=[];
+  const c=document.getElementById("canvas");
+  c.innerHTML=`<div class="boardrow">`+DATA.map(b=>{
+    const badge=b.badge?`<span class="badge ${badgeMap[b.badge][0]}">${badgeMap[b.badge][1]}</span>`:"";
+    return `<div class="board${b.group?" group":""}"><h2>${b.board}${badge}</h2><div class="sub">${b.sub}</div>
+      <div class="tree">${b.nodes.map(n=>nodeHtml(n,b.board)).join("")}</div></div>`;
+  }).join("")+`</div>`;
+  document.querySelectorAll(".card[data-id]").forEach(el=>{
+    el.addEventListener("click",e=>{e.stopPropagation(); openPanel(+el.dataset.id);});
+  });
+}
+function openPanel(id){
+  const n=all[id];
+  const banks=n.banks&&n.banks.length?n.banks.map(b=>`<dd>• ${b}</dd>`).join(""):"<dd>None recorded in estate</dd>";
+  document.getElementById("panelBody").innerHTML=`
+    <h3>${n.nm}</h3><div style="font-size:11px;color:var(--grey2)">${n.path}</div>
+    <dl>
+      <dt>Jurisdiction</dt><dd>${n.j}</dd>
+      <dt>Role / purpose</dt><dd>${n.role}</dd>
+      <dt>Ownership</dt><dd>${n.own||"—"}</dd>
+      <dt>Banking / lenders</dt>${banks}
+      <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">${n.ev||"Structure-chart pass, Jul 2026"}</dd>
+    </dl>
+    ${n.flag?`<div class="flagbox">⚑ To verify: ${n.flag}</div>`:""}`;
+  document.getElementById("panel").classList.add("open");
+}
+function closePanel(){document.getElementById("panel").classList.remove("open");}
+
+let scale=.8, ox=20, oy=20, drag=null;
+const vp=document.getElementById("viewport"), cv=document.getElementById("canvas");
+function apply(){cv.style.transform=`translate(${ox}px,${oy}px) scale(${scale})`;}
+vp.addEventListener("mousedown",e=>{drag={x:e.clientX-ox,y:e.clientY-oy}; vp.classList.add("dragging");});
+window.addEventListener("mousemove",e=>{if(drag){ox=e.clientX-drag.x; oy=e.clientY-drag.y; apply();}});
+window.addEventListener("mouseup",()=>{drag=null; vp.classList.remove("dragging");});
+vp.addEventListener("wheel",e=>{e.preventDefault();
+  const f=e.deltaY<0?1.1:0.9, r=vp.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  ox=mx-(mx-ox)*f; oy=my-(my-oy)*f; scale=Math.min(2.2,Math.max(.25,scale*f)); apply();},{passive:false});
+
+document.getElementById("search").addEventListener("input",e=>{
+  const q=e.target.value.toLowerCase().trim();
+  document.querySelectorAll(".card[data-id]").forEach(el=>{
+    const n=all[+el.dataset.id];
+    const hay=(n.nm+" "+n.role+" "+n.j+" "+(n.own||"")+" "+(n.banks||[]).join(" ")+" "+n.path).toLowerCase();
+    el.classList.toggle("hl", q.length>1 && hay.includes(q));
+  });
+});
+
+render(); apply();
+</script>
+</body>
+</html>

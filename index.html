@@ -3,247 +3,521 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valpre Capital — Project & Entity Map</title>
+<title>Valpre Capital — Group Structure Charts</title>
 <style>
   :root{
-    --bg:#F2F5FB; --bg2:#E6EDF6; --card:#FFFFFF; --panel:#FFFFFF;
+    --bg:#F2F5FB; --bg2:#E6EDF6; --card:#FFFFFF;
     --navy:#0F275D; --navy2:#1F3768; --navy3:#233869;
     --blue:#4488B0; --blue2:#2E5485; --blue3:#6D94AD;
     --grey:#626264; --grey2:#8C8F8F; --steel:#B5C6DA; --light:#F2F2F2;
-    --ink:#1F3768; --muted:#626264;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{background:var(--bg); color:var(--ink); font-family:'Segoe UI',system-ui,Arial,sans-serif; overflow:hidden; height:100vh;}
-  header{position:fixed; top:0; left:0; right:0; z-index:50; display:flex; gap:14px; align-items:center;
-    padding:12px 18px; background:rgba(255,255,255,.94); backdrop-filter:blur(6px); border-bottom:2px solid var(--steel);}
-  header h1{font-size:16px; font-weight:700; letter-spacing:.4px; color:var(--navy);}
+  body{background:var(--bg); color:var(--navy2); font-family:'Segoe UI',system-ui,Arial,sans-serif; overflow:hidden; height:100vh;}
+  header{position:fixed; top:0; left:0; right:0; z-index:50; display:flex; gap:12px; align-items:center;
+    padding:10px 18px; background:rgba(255,255,255,.96); border-bottom:2px solid var(--steel);}
+  header h1{font-size:15px; font-weight:700; color:var(--navy); white-space:nowrap;}
   header h1 span{color:var(--blue2); font-weight:500;}
-  #search{background:var(--bg2); border:1px solid var(--steel); color:var(--navy); border-radius:8px; padding:7px 12px; width:250px; font-size:13px;}
+  #search{background:var(--bg2); border:1px solid var(--steel); color:var(--navy); border-radius:8px; padding:6px 12px; width:220px; font-size:13px;}
   #search:focus{outline:2px solid var(--blue);}
-  .legend{display:flex; gap:9px; flex-wrap:wrap; font-size:11px; color:var(--grey); margin-left:auto;}
-  .legend i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px;}
-  .hint{font-size:11px; color:var(--grey2);}
-  #viewport{position:absolute; inset:0; top:54px; cursor:grab; overflow:hidden;}
+  .hint{font-size:11px; color:var(--grey2); margin-left:auto; white-space:nowrap;}
+  #tabs{position:fixed; top:47px; left:0; right:0; z-index:49; display:flex; gap:4px; padding:8px 14px; overflow-x:auto;
+    background:rgba(255,255,255,.96); border-bottom:1px solid var(--steel);}
+  .tab{white-space:nowrap; font-size:11.5px; font-weight:600; color:var(--blue2); background:var(--bg2);
+    border:1px solid var(--steel); border-radius:16px; padding:5px 12px; cursor:pointer;}
+  .tab.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .tab .cnt{font-weight:400; color:inherit; opacity:.7;}
+  #viewport{position:absolute; inset:0; top:92px; cursor:grab; overflow:hidden;}
   #viewport.dragging{cursor:grabbing;}
-  #canvas{position:absolute; transform-origin:0 0; padding:40px;}
-  .boardrow{display:flex; gap:30px; align-items:flex-start; flex-wrap:nowrap;}
-  .board{background:var(--card); border:1px solid var(--steel); border-radius:16px; padding:18px 20px 22px;
-    min-width:350px; max-width:440px; flex-shrink:0; box-shadow:0 3px 14px rgba(15,39,93,.08);}
-  .board h2{font-size:15px; margin-bottom:2px; color:var(--navy);}
-  .board .sub{font-size:11px; color:var(--grey); margin-bottom:14px; line-height:1.5;}
-  .board.group{border-top:4px solid var(--navy);}
-  .badge{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; border-radius:4px; padding:2px 6px; margin-left:6px; vertical-align:2px;}
+  #canvas{position:absolute; transform-origin:0 0;}
+  #chart{position:relative;}
+  #wires{position:absolute; top:0; left:0; pointer-events:none; overflow:visible;}
+  .nd{position:absolute; width:190px; background:var(--card); border:1.5px solid var(--blue2); border-radius:8px;
+    padding:7px 9px; cursor:pointer; box-shadow:0 2px 6px rgba(15,39,93,.10); transition:box-shadow .1s;}
+  .nd:hover{box-shadow:0 4px 12px rgba(15,39,93,.25);}
+  .nd.hl{outline:3px solid #E8B13F;}
+  .nd .nm{font-size:11.5px; font-weight:700; color:var(--navy); line-height:1.3;}
+  .nd .meta{font-size:9.5px; color:var(--grey); margin-top:2px; line-height:1.35;}
+  .nd .fl{font-size:9px; color:#9C3A50; margin-top:2px;}
+  .nd .bk{font-size:9px; color:var(--blue); margin-top:2px;}
+  .nd.root{background:var(--navy); border-color:var(--navy);}
+  .nd.root .nm{color:#fff;}
+  .nd.root .meta{color:var(--steel);}
+  .nd.root .bk{color:#9fd0ff;}
+  .nd.root .fl{color:#ffb3c2;}
+  .nd.person{background:var(--bg2); border-color:var(--blue3); border-radius:18px; text-align:center;}
+  .nd.person .nm{font-weight:600; font-size:11px;}
+  .nd.diss{border-style:dashed; opacity:.85;}
+  .nd.formx{border-style:dashed; border-color:var(--blue);}
+  .badge{display:inline-block; font-size:8px; font-weight:700; letter-spacing:.4px; border-radius:3px; padding:1px 5px; margin-left:4px; vertical-align:1px;}
   .b-live{background:#E0EFE6; color:#1E6B43;} .b-sold{background:#F5EBD6; color:#8A6A1F;}
-  .b-exit{background:var(--light); color:var(--grey);} .b-form{background:var(--bg2); color:var(--blue2);}
-  .b-dead{background:#F5E0E4; color:#9C3A50;}
-  .node{position:relative; margin:7px 0;}
-  .node .card{background:var(--card); border:1px solid var(--steel); border-left:4px solid var(--grey2);
-    border-radius:9px; padding:8px 11px; cursor:pointer; transition:transform .08s, box-shadow .12s;}
-  .node .card:hover{transform:translateX(2px); box-shadow:0 2px 8px rgba(15,39,93,.16);}
-  .node .card.hl{outline:2px solid var(--blue); background:var(--bg2);}
-  .card .nm{font-size:12.5px; font-weight:600; color:var(--navy);}
-  .card .rl{font-size:10.5px; color:var(--grey); margin-top:2px; line-height:1.45;}
-  .card .ow{font-size:10px; color:var(--blue2); margin-top:2px; font-weight:600;}
-  .card .bk{font-size:10px; color:var(--blue); margin-top:2px;}
-  .card .fl{font-size:10px; color:#9C3A50; margin-top:2px;}
-  .kids{margin-left:26px; border-left:1.5px solid var(--steel); padding-left:14px;}
-  .juris-UK{border-left-color:var(--blue2)!important;}
-  .juris-Ireland{border-left-color:var(--blue)!important;}
-  .juris-Cayman{border-left-color:var(--grey2)!important;}
-  .juris-Greece{border-left-color:var(--navy)!important;}
-  .juris-Luxembourg{border-left-color:var(--blue3)!important;}
-  .juris-Monaco{border-left-color:var(--grey)!important;}
-  .juris-BVI{border-left-color:var(--grey)!important;}
-  .juris-Spain{border-left-color:var(--steel)!important;}
-  .juris-Unverified{border-left-color:var(--steel)!important; border-left-style:dashed;}
-  #panel{position:fixed; top:54px; right:0; bottom:0; width:370px; background:var(--panel); border-left:2px solid var(--steel);
-    padding:22px; transform:translateX(100%); transition:transform .18s ease; z-index:60; overflow-y:auto; box-shadow:-4px 0 18px rgba(15,39,93,.10);}
+  .b-form{background:#E6EDF6; color:#2E5485;} .b-diss{background:#F5E0E4; color:#9C3A50;} .b-exit{background:#F2F2F2; color:#626264;}
+  .pct{position:absolute; font-size:9.5px; font-weight:700; color:var(--blue2); background:rgba(255,255,255,.92);
+    padding:0 4px; border-radius:4px; pointer-events:none; white-space:nowrap; transform:translate(-50%,-50%);}
+  .chart-title{position:absolute; font-size:13px; font-weight:700; color:var(--navy);}
+  .chart-sub{position:absolute; font-size:10px; color:var(--grey); max-width:560px; line-height:1.45;}
+  #panel{position:fixed; top:92px; right:0; bottom:0; width:360px; background:#fff; border-left:2px solid var(--steel);
+    padding:20px; transform:translateX(100%); transition:transform .18s ease; z-index:60; overflow-y:auto; box-shadow:-4px 0 18px rgba(15,39,93,.10);}
   #panel.open{transform:translateX(0);}
-  #panel h3{font-size:16px; margin-bottom:4px; color:var(--navy);}
-  #panel .close{position:absolute; top:14px; right:16px; background:none; border:none; color:var(--grey); font-size:18px; cursor:pointer;}
-  #panel dl{margin-top:14px;}
-  #panel dt{font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--grey2); margin-top:13px;}
-  #panel dd{font-size:13px; margin-top:3px; line-height:1.55; color:var(--ink);}
-  #panel .flagbox{margin-top:16px; background:#FBF0F2; border:1px solid #E5C3CB; border-radius:8px; padding:10px 12px; font-size:12px; color:#9C3A50; line-height:1.5;}
-  footer{position:fixed; bottom:0; left:0; right:0; padding:6px 18px; font-size:10.5px; color:var(--grey2);
+  #panel h3{font-size:15px; margin-bottom:4px; color:var(--navy);}
+  #panel .close{position:absolute; top:12px; right:14px; background:none; border:none; color:var(--grey); font-size:17px; cursor:pointer;}
+  #panel dt{font-size:9.5px; text-transform:uppercase; letter-spacing:.8px; color:var(--grey2); margin-top:12px;}
+  #panel dd{font-size:12.5px; margin-top:3px; line-height:1.5;}
+  #panel .flagbox{margin-top:14px; background:#FBF0F2; border:1px solid #E5C3CB; border-radius:8px; padding:9px 11px; font-size:11.5px; color:#9C3A50; line-height:1.45;}
+  footer{position:fixed; bottom:0; left:0; right:0; padding:5px 16px; font-size:10px; color:var(--grey2);
     background:rgba(255,255,255,.94); border-top:1px solid var(--steel); z-index:50;}
 </style>
 </head>
 <body>
 <header>
-  <h1>VALPRE CAPITAL <span>— Project & Entity Map v2</span></h1>
-  <input id="search" type="text" placeholder="Search entity, bank, %, project…">
-  <div class="legend">
-    <span><i style="background:var(--blue2)"></i>UK</span><span><i style="background:var(--blue)"></i>Ireland</span>
-    <span><i style="background:var(--grey2)"></i>Cayman</span><span><i style="background:var(--navy)"></i>Greece</span>
-    <span><i style="background:var(--blue3)"></i>Luxembourg</span><span><i style="background:var(--grey)"></i>Monaco/BVI</span>
-    <span><i style="background:var(--steel)"></i>Unverified</span>
-  </div>
-  <span class="hint">drag to pan · scroll to zoom · click a card</span>
+  <h1>VALPRE CAPITAL <span>— Group Structure Charts v4</span></h1>
+  <input id="search" type="text" placeholder="Search entity, %, bank, CN…">
+  <span class="hint">drag to pan · scroll to zoom · click a box for detail</span>
 </header>
-
-<div id="viewport"><div id="canvas"></div></div>
-
-<aside id="panel">
-  <button class="close" onclick="closePanel()">✕</button>
-  <div id="panelBody"></div>
-</aside>
-
-<footer>v2 — verified from structure charts (Machas Athens V5 Oct-25 · VC PCL1 SCSp Nov-25 · VC PBSA1 Dec-25 · VC PBSA2 Nov-25 · Group Apr-25 · Op Group Feb-26 · VCDREF Apr-25 · Kilt · VCLG). Ownership % as charted. Bank names & purposes only. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
+<div id="tabs"></div>
+<div id="viewport"><div id="canvas"><div id="chart"><svg id="wires"></svg></div></div></div>
+<aside id="panel"><button class="close" onclick="closePanel()">✕</button><div id="panelBody"></div></aside>
+<footer>v4 — reconciled to “Group Structure — Detailed Entity Charts” as at 30 Jun 2026. Ownership % on connectors as charted. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
 
 <script>
-const DATA = [
- {board:"Group / Sponsor Level", badge:"", sub:"Verified: 00 VC Group.pptx, 02 VCI.pptx, group charts Apr 2025, VCUK chart Oct 2025. Sponsor chain: principals → MDOA (Cayman) → SCP MDOA (Monaco) → VCI (Lux).", group:true, nodes:[
-   {nm:"MDOA Limited", j:"Cayman", role:"Sponsor HoldCo", own:"Mazen Abou Chakra 50% / Muhannad Hariri 50%", banks:[], ev:"00 VC Group.pptx", kids:[
-     {nm:"SCP MDOA", j:"Monaco", role:"Intermediate holding (Monaco SCP)", own:"MDOA 100%", banks:[], ev:"02 VCI.pptx; SCPMDOA_Certification.pdf", kids:[
-       {nm:"Valpre Capital Investments SARL (VCI)", j:"Luxembourg", role:"Investment HoldCo — RCS B255894. Holds: VCA SA 78%, NREK1 18.67%, EVC Energy SA 42.5%, VC Pharma 66.66%, Dublin Fund LP 3.5%, VC PCL1 Class A 90%", own:"SCP MDOA 99.9% / MDOA 0.1%", banks:["Arab Bank — account","Banque BEMO — account"], ev:"02 VCI.pptx", kids:[]},
-     ]},
-   ]},
-   {nm:"Valpre Capital UK Limited (VCUK)", j:"UK", role:"FCA-hosted manager/GP co (CN 11872154) — operating hub, advisory agreements, compliance home", own:"4 sponsors × 350 shares: M. Abou Chakra, R. Aslan, M.A. Beyhum, A.M. Hariri", banks:["Barclays — main operating account"], ev:"VCUK Structure Chart_251025.pptx", kids:[]},
-   {nm:"Valpre Capital Cayman Limited (VCCL)", j:"Cayman", role:"Cayman HoldCo — owns VCCL GP 100%; Dublin Fund Class B + 31.96% Class A", own:"M. Abou Chakra 40% / SCP MDOA 40% / R. Aslan 20%", banks:["Arab Bank — account"], ev:"03 VCDREF.pptx (VCCL chart pdf is scanned image)", kids:[]},
-   {nm:"2026 Reorg NEWCOs (planned)", j:"Unverified", role:"Op Group chart Feb 2026: Valpre Capital UK HoldCo (owners AMH, MAC, Erik Arveschoug, Sami Al Hakim, RA; 100% Class B of VCUK — legacy TKY/Roc economics stay in VCUK Class A) · Valpre Capital Luxembourg SARL (unregulated invoicing co) · Valpre Capital Spain SA/SL (SGEIC/AIFM applicant) · Silver Birch SPV (100% UK HoldCo)", own:"—", banks:[], badge:"form", flag:"All in formation — confirm incorporations as they complete", ev:"VC Operating Group Structure Chart_260215.pptx", kids:[]},
-   {nm:"Valpre Capital SAL", j:"Unverified", role:"Beirut regulated management co (CMA licence docs) — not on any current group chart", own:"—", banks:["Bank of Beirut — capital subscription"], flag:"Not on charts — status/dormancy to confirm", kids:[]},
-   {nm:"LEGC · Evolv Properties · EVC Greece 1 SARL", j:"Unverified", role:"Folders exist in 03-Legal but appear on no structure chart read this pass (Evolv = Irish services/nominee co for Dublin SPVs; LEGC unidentified; EVC Greece 1 = Lux, intercompany ledgers only)", own:"—", banks:[], flag:"Unverified / possibly dormant — review", kids:[]},
- ]},
- {board:"05 · Athens Aparthotel (YotelPad)", badge:"live", sub:"Machas final structure (V5, Oct/Nov 2025). 3 buildings: Epikourou 62 rooms, Miltiadou 37, Iras 14. PropCos invoice all revenue; LeaseCos rent floors (fixed min + % turnover); YOTEL HMA at OpCo; 6 Ministry of Tourism permits.", nodes:[
-   {nm:"Valpre Capital Athens S.A. (VCA)", j:"Luxembourg", role:"Project HoldCo ('Lux HoldCo') — owns 100% of the Greek stack", own:"VCI SARL 78% / Investors 22%", banks:[], ev:"VCA SA Structure Chart_2025-01-23.pdf; Valpre Athens Structure Chart V5.pdf", kids:[
-     {nm:"VCGP1 — Valpre Capital Grea Properties 1 Single Member S.A.", j:"Greece", role:"PropCo — EPIKOUROU building (62 rooms; operates 29 units itself: 4th/5th/6th/8th floors). Ex-ZOIA 28 S.M.S.A., acquired from Zoia GR 6 Holding Ltd (Cyprus), SPA 28-Nov-2024. TIN 801041393", own:"VCA 100%", banks:["Attica Bank — acquisition/bond financing (now CrediaBank)"], ev:"Machas chart + Zoia SPA closing bible", kids:[
-       {nm:"VCGP Epikourou 1 Single Member P.C.", j:"Greece", role:"LeaseCo 1 — 15 units (3rd & 7th floors). TIN 803046095", own:"VCGP1 100%", banks:[], kids:[]},
-       {nm:"VCGP Epikourou 2 Single Member P.C.", j:"Greece", role:"LeaseCo 2 — 18 units (1st & 2nd floors). TIN 803046083", own:"VCGP1 100%", banks:[], kids:[]},
-     ]},
-     {nm:"VCGP2 — Valpre Capital Grea Properties 2 Single Member S.A.", j:"Greece", role:"PropCo — MILTIADOU building (37 rooms; operates 30 units). Ex-ZOIA 49 S.M.S.A., acquired from Zoia GR 12 Holding Ltd et al., 20-Nov-2024. TIN 801682657", own:"VCA 100%", banks:[], ev:"Machas chart + SPA", kids:[
-       {nm:"VCGP Miltiadou Single Member P.C.", j:"Greece", role:"LeaseCo — 7 units (1st floor). TIN 803046046", own:"VCGP2 100%", banks:[], kids:[]},
-     ]},
-     {nm:"VCGP3 — Grea Holdings 2 S.A. (renaming to Valpre Capital Grea Properties 3 S.M.S.A.)", j:"Greece", role:"PropCo — IRAS building (14 apartments, exploited at entity level, no LeaseCo)", own:"Under transfer to VCA 100%", banks:["CrediaBank — Iras financing"], flag:"Transfer & rename in progress — confirm completion", ev:"Machas chart; Credia Financing folder", kids:[]},
-     {nm:"VCGP OpCo Single Member P.C. (ex-Grea Properties S.M.P.C.)", j:"Greece", role:"OpCo — employs all staff, allocates costs across the 6 operating entities; YOTEL HMA sits here. TIN 801876010", own:"Under transfer to VCA (sole-partner resolutions + STA Oct 2025)", banks:["Credia Bank — e-banking mandate"], flag:"Transfer in progress", kids:[]},
-   ]},
-   {nm:"Metz", j:"Greece", role:"Exited sub-project", own:"—", banks:[], badge:"exit", kids:[]},
- ]},
- {board:"07 · Yeomans Square — Knightsbridge", badge:"live", sub:"VC PCL1 charts Nov 2025 + KPMG tax report Apr 2026. Asset: 60 Walton Street SW3 + 5 & 6 Glynde Mews, acquired £18m from Elms Investments. Lender: Unbranded Finance 2 LLP (acq ~£11m + dev ~£31m).", nodes:[
-   {nm:"VC PCL 1 SCSp", j:"Luxembourg", role:"Investor pooling partnership (registration in progress Nov 2025); feeds investor equity into VC PCL 1 Ltd", own:"GP: Valpre Capital (Luxembourg) GP SARL (to be incorporated); nominal LP: VCI SARL", banks:[], badge:"form", flag:"Registration + GP SARL incorporation to confirm", ev:"VC PCL1 Structure Chart_2025-11-20 (Luxembourg SCSp).pptx", kids:[
-     {nm:"VC PCL 1 Limited", j:"UK", role:"Project TopCo (CN 15182560). Class A: VCI 90% / VCUK 8% / third-party 2% (DDNs same split). Class B (carry): VCUK 75% / investors 25%; investors' £6.912m = 69,120 B shares", own:"Per Nov-25 chart + KPMG steps", banks:["Barclays — account"], kids:[
-       {nm:"YSK IntermediateCo Limited", j:"UK", role:"Finance/borrower co — draws Unbranded acquisition + development facilities; will incorporate 14–20 unit SPVs (air leases per residential unit)", own:"VC PCL 1 Ltd 100%", banks:["Unbranded Finance 2 LLP — acq (~£11m) + dev (~£31m) facilities (lender)"], kids:[
-         {nm:"YSK FreeholdCo Limited", j:"UK", role:"Freehold PropCo (CN 17116674) — 60 Walton Street; future resi management co / VAT 'person converting'", own:"YSK IntermediateCo 100%", banks:[], kids:[]},
-         {nm:"Unit SPVs × 14–20 (planned)", j:"UK", role:"Per-unit air-lease SPVs to be incorporated under IntermediateCo", own:"—", banks:[], badge:"form", flag:"Not yet incorporated (KPMG Apr 2026)", kids:[]},
-       ]},
-     ]},
-   ]},
- ]},
- {board:"06 · The Roc Club — PBSA Rockingham", badge:"live", sub:"VC PBSA1 chart 26-Dec-2025 (latest). JV partner CKC Properties Ltd (Smart Street Furniture Ltd). Historic lender OakNorth.", nodes:[
-   {nm:"VC PBSA1 Limited", j:"UK", role:"Project TopCo — DDN & share issuer to 38 investors", own:"Investors 90.2% Class B / VCUK 8.7% Class A / CKC Properties Ltd 1.1% Class A (CKC holds A/C control & carry; invests 40% Class B + 60% DDNs)", banks:["Barclays — operating account","OakNorth — development lender"], ev:"VC PBSA1_Structure Chart_2025-12-26.pdf", kids:[
-     {nm:"ROC Newco 1 Limited", j:"UK", role:"HoldCo", own:"VC PBSA1 100%", banks:[], kids:[]},
-     {nm:"ROC Newco 2 Limited", j:"UK", role:"HoldCo", own:"VC PBSA1 100%", banks:[], kids:[]},
-     {nm:"ROC Devco Limited", j:"UK", role:"Development co (added in Dec-25 chart; sits under the Newco chain)", own:"100% within stack", banks:[], kids:[]},
-     {nm:"Alumrose LLP", j:"UK", role:"Owner of the land — members are the two Newcos. (Operator folder '06 Alumrose' relates here)", own:"Members: ROC Newco 1 + ROC Newco 2", banks:[], kids:[]},
-   ]},
- ]},
- {board:"08 · PBSA Platform — Amelia Street (VC PBSA2)", badge:"live", sub:"VC PBSA 2 chart 17-Nov-2025 (latest of 4 versions). JV with Katch Alternative Funds S.A. SICAV-RAIF (Lux B283471). Site 1.6/1.8 Elephant & Castle.", nodes:[
-   {nm:"VC PBSA 2 Limited", j:"UK", role:"Platform/project TopCo (CN 16768696)", own:"Class B: third-party investors 75% / Katch SICAV-RAIF 20% / VCUK 5% (Class A split ~95/5 — extraction ambiguous)", banks:[], flag:"Exact Class A/B mapping to confirm from chart", ev:"VC PBSA 2 Structure Chart_251117.pptx", kids:[
-     {nm:"HGL Amelia Street Limited", j:"UK", role:"Intermediate/JV co (CN 16856938) — between PBSA2 and the asset SPV", own:"Per chart (50% / 25%+25% legs shown)", banks:[], kids:[
-       {nm:"31 Amelia Street Limited", j:"UK", role:"Asset SPV (CN 16777388) — 31 Amelia Street PBSA development, Elephant & Castle", own:"Via HGL Amelia Street", banks:[], kids:[]},
-     ]},
-   ]},
- ]},
- {board:"03 · Three Kings Mayfair", badge:"live", sub:"Group deck Apr 2025 (TKY slide). DDN programme — Deep Discounted Notes due March 2027. Sales/completion phase.", nodes:[
-   {nm:"3KY MAYFAIR Limited", j:"UK", role:"Asset co — Mayfair site + members' club. VCUK loan facility secured by mortgage; DDNs due Mar 2027", own:"Investors Class A (64.28%/35.72% splits), Investor Class B 79.8%; VC TKY 12.5%", banks:[], ev:"Group deck 2025-04-01 TKY slide", kids:[]},
-   {nm:"VC TKY Limited", j:"UK", role:"Valpre investment vehicle into 3KY (holds Class A/B positions); statutory registers on file", own:"VCUK-linked", banks:["Barclays — project account + debt statements"], kids:[]},
-   {nm:"TKY LendCo Limited", j:"Cayman", role:"DDN funding vehicle for TKY; also shareholder in EVC Kilt (2,490 shares)", own:"—", banks:[], kids:[]},
- ]},
- {board:"04 · EVC Energy — Greek/UK Renewables", badge:"live", sub:"Kilt structure chart + group chart. Lux HoldCo EVC Energy SA (VCI 42.5%) over Greek pipeline SPVs; UK dev co EVC Kilt with 4 energy-centre SPVs. Kilt portfolio sold to Sonnedix 2025.", nodes:[
-   {nm:"EVC Energy SA", j:"Luxembourg", role:"Solar PV/BESS HoldCo → 100% multiple Greek SPVs (EG2–EG5, ES Energy, SVII pipeline; Helios raise; Elmya SA JV counterparty)", own:"VCI 42.5% + partners", banks:[], ev:"02 VCI.pptx / group chart", kids:[]},
-   {nm:"EVC Kilt Limited", j:"UK", role:"Solar/BESS development co — DDNs fund Strathruddie grid connection", own:"Elmya Energy UK 4,250 sh / TKY LendCo 2,490 / VCUK 1,760 / Zalana Investment Holdings (BVI) 1,500", banks:["Barclays — account"], badge:"exit", ev:"01 EVC Kilt Structure.pptx", kids:[
-     {nm:"Strathruddie Energy Centre Ltd", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
-     {nm:"Montreathmont Energy Centre", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
-     {nm:"Mannington Energy Centre Ltd", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
-     {nm:"IQ Energy Centre Ltd", j:"UK", role:"Energy centre SPV", own:"EVC Kilt 100%", banks:[], kids:[]},
-   ]},
- ]},
- {board:"01 · VCDREF — Dublin Fund", badge:"live", sub:"03 VCDREF.pptx (Apr 2025). Cayman fund; 23 Dublin assets; admin Apex; Northern Trust custody; AIB lending; Evolv Properties (IE) provides director/co-sec services to SPVs (not on chart).", nodes:[
-   {nm:"Valpre Capital Dublin Real Estate GP", j:"Cayman", role:"General Partner of the fund", own:"VCCL GP Limited (VCCL 100%)", banks:[], ev:"03 VCDREF.pptx", kids:[
-     {nm:"Valpre Capital Dublin Real Estate Fund LP", j:"Cayman", role:"Fund — Dublin residential/commercial portfolio. LPs incl. A.M. Hariri (Class A majority), VCCL 31.96% Class A + Class B, VCI 3.5%", own:"Per Apr-25 chart", banks:["Northern Trust — custody/banking","AIB — asset-level lending","Bank of Ireland — historic financing"], kids:[
-       {nm:"Asset Resi Limited", j:"Ireland", role:"SPV — residential assets", own:"Fund 100%", banks:["AIB — account"], kids:[]},
-       {nm:"Asset Resi 2 Limited", j:"Ireland", role:"SPV — residential", own:"Fund 100%", banks:["AIB — account"], kids:[]},
-       {nm:"Asset Resi 3 Limited", j:"Ireland", role:"SPV — residential (legal folder empty)", own:"Fund 100%", banks:[], flag:"Empty 03-Legal folder; Asset Resi 4 (2022 audits) absent entirely", kids:[]},
-       {nm:"Asset 401 Capel Limited", j:"Ireland", role:"SPV — 401 Capel Street", own:"Fund 100%", banks:[], kids:[]},
-       {nm:"Asset Commercial 2 Limited", j:"Ireland", role:"SPV — commercial asset", own:"Fund 100%", banks:["AIB — account","Arab Bank — account"], kids:[]},
-     ]},
-   ]},
- ]},
- {board:"02 · 10 Newmarket Square — Dublin", badge:"sold", sub:"Sold to MEAG (Jan 2026). 132-unit BTR, Dublin 8.", nodes:[
-   {nm:"NREK1 Limited", j:"Ireland", role:"Deal vehicle — 10 Newmarket Square BTR", own:"VCI 18.67% + JV partners (Revelate JVA/DMA)", banks:[], flag:"Post-sale wind-down status to confirm", ev:"Group chart + NREK1_Structure_Chart_Jan2023", kids:[]},
- ]},
- {board:"Liberty Gardens — Bristol", badge:"dead", sub:"Dead deal, live entities with Barclays accounts — wind-down candidates. VCLG structure chart.", nodes:[
-   {nm:"VC LG Limited", j:"UK", role:"Valpre-side HoldCo", own:"M. Abou Chakra + A.M. Hariri", banks:["Barclays — account"], ev:"01 VCLG_StructureChart.pptx", kids:[
-     {nm:"UVC Liberty Gardens Limited", j:"UK", role:"50/50 JV co — counterparty side: Brasted Investments Ltd ← Allington Holdings Ltd (K. Allington / K. Ewart 50/50)", own:"VC LG 50% / Brasted Investments 50%", banks:["Barclays — account"], kids:[]},
-   ]},
- ]},
- {board:"Legacy / Other", badge:"", sub:"", nodes:[
-   {nm:"Valpre Capital Pharma Limited", j:"Ireland", role:"Legacy pharma venture (2020)", own:"VCI 66.66%", banks:["AIB — account"], badge:"exit", kids:[]},
- ]},
+// node: {nm, j, role, cls(person/root/plain), badge, flag, banks, note, kids:[[pct, node]]}
+const P=(nm,j,note)=>({nm,j,role:note||'Individual',cls:'person',kids:[]});
+
+// ============ COMBINED NETWORK (single sheet) ============
+// kinds: own = ownership (blue) · ubo = holding chain (navy) · x = cross-project link (amber dashed)
+const CN=(id,nm,j,x,y,role,opt)=>Object.assign({id,nm,j,x,y,role},opt||{});
+const COMBINED={
+ title:"All Structures — Combined Sheet",
+ sub:"Every entity on one canvas. Blue lines = ownership (% as charted, 30 Jun 2026). Amber dashed = CROSS-PROJECT links — where structures touch. Dashed boxes = external partners / in formation. Sub-stacks collapsed where detail lives on the other tabs.",
+ nodes:[
+  // individuals & UBO
+  CN('beyhum','Mohamed Ali Beyhum','Individual',260,30,'',{cls:'person'}),
+  CN('aslan','Rami Aslan','Individual · UAE res.',450,30,'',{cls:'person'}),
+  CN('mazen','Mazen AbouChakra','Individual · UK res.',640,30,'',{cls:'person'}),
+  CN('ahmad','Ahmad Hariri','Individual',830,30,'',{cls:'person'}),
+  CN('muhannad','Muhannad Hariri','Individual · non-EU',1700,30,'+0.1% SCP MDOA directly',{cls:'person'}),
+  CN('mdoa','MDOA Limited','Cayman',1700,140,'UBO vehicle'),
+  CN('scpmdoa','SCP MDOA','Monaco',1700,255,'Intermediate holding'),
+  // holdcos
+  CN('vcuk','VALPRE CAPITAL UK LTD','UK · 11872154',590,400,'Operating co · AR of Vittoria Partners (FCA)',{cls:'root',banks:['Barclays']}),
+  CN('vci','VALPRE CAPITAL INVESTMENTS SARL','Luxembourg',1700,400,'Investment HoldCo',{cls:'root',banks:['Arab Bank','BEMO']}),
+  CN('vccl','VALPRE CAPITAL CAYMAN LTD','Cayman',2280,400,'HoldCo · 31.96% A LP of Dublin fund',{cls:'root',banks:['Arab Bank']}),
+  CN('vvh','Vennre VVH Ltd','UK · 13923351',800,315,'Private-markets platform stake'),
+  // Dublin (top right)
+  CN('vcclgp','VCCL GP LIMITED','Cayman',2650,140,'GP HoldCo — held by Mazen & Ahmad directly'),
+  CN('dubgp','VC Dublin Real Estate GP','Cayman',2650,260,'General Partner'),
+  CN('fund','VCDREF FUND LP','Cayman',2650,400,'24 Dublin properties · 163 apts',{cls:'root',banks:['Northern Trust','AIB','CapitalFlow']}),
+  CN('spvs5','5 Asset SPVs','Cayman → Irish assets',2650,560,'Resi 1-3 · 401 Capel · Commercial 2'),
+  // externals row (dashed)
+  CN('elmyauk','Elmya Energy UK','UK · 13809258',40,470,'Partner — Elmya group',{cls:'formx'}),
+  CN('ckc','CKC Properties Ltd','UK · 05739185',480,470,'Delivery partner (1,500+ beds)',{cls:'formx'}),
+  CN('katch','Katch Capital Sarl','Luxembourg',700,470,'Katch Investment Group',{cls:'formx'}),
+  CN('phi','Phi London Limited','UK · 09825174',920,470,'Co-sponsor (TKY alumni)',{cls:'formx'}),
+  CN('aqs','AQS European RE II Coöp.','Netherlands (AREPE II Lux)',1480,470,'Institutional partner',{cls:'formx'}),
+  CN('elmyasl','Elmya Energy SL','Spain (Sevilla)',1880,470,'Partner — Elmya HoldCo group',{cls:'formx'}),
+  CN('starinia','Starinia Investments','Cyprus · Osiris BVI trust',2100,470,'Investor',{cls:'formx'}),
+  // project row A
+  CN('kilt','EVC KILT LTD','UK · 13949208',40,620,'UK energy dev co',{banks:['Barclays']}),
+  CN('vctky','VC TKY LTD','UK · 13716369',260,620,'Three Kings Yard, Mayfair',{banks:['Barclays']}),
+  CN('pbsa1','VC PBSA1 LTD','UK · 15466892',480,620,'The Roc Club — 244 beds',{banks:['OakNorth','Beaufort']}),
+  CN('rocpart','ROC PBSA PARTNERS LTD','UK · 16777388',700,620,'PBSA JV platform',{flag:'vs VC PBSA 2 / HGL Amelia — verify'}),
+  CN('pcl1','VC PCL1 LTD','UK · 15182560',920,620,'Yeoman Square, Knightsbridge',{banks:['Unbranded Fin 2']}),
+  CN('dcg','VC DC GREECE LTD','UK · 17290322',1140,620,'Greek data centres HoldCo',{badge:'form'}),
+  CN('scsp','VC PCL 1 SCSp','Lux · to be formed',1360,620,'Investor pooling — GP: VC GP SARL (tbf)',{cls:'formx',badge:'form'}),
+  CN('nrek','NREK1 LTD','Ireland · 663847',1560,620,'10 Newmarket Sq — SOLD to MEAG',{badge:'sold'}),
+  CN('evcsa','EVC ENERGY SA','Luxembourg',1780,620,'Solar PV/BESS HoldCo',{flag:'42.5/42.5/15 vs 49.75/49.75/0.5'}),
+  CN('vca','VC ATHENS SA','Luxembourg',2020,620,'YOTELPAD Athens HoldCo'),
+  CN('pharma','VC Pharma Ltd','Ireland · 665697',1360,315,'Legacy',{badge:'exit',flag:'3% vs 66.66%'}),
+  // row B
+  CN('encentres','2 Energy Centre SPVs','UK',40,790,'Strathruddie · IQ (100% each)'),
+  CN('3ky','3KY MAYFAIR LTD','UK · 13856460',260,790,'8 apartments + club',{banks:['Close Brothers']}),
+  CN('rocstack','ROC DevCo · NewCo 1 · NewCo 2','UK',480,790,'100% each → Alumrose LLP (land)'),
+  CN('pbsaco','PBSA Co → Project Co','UK · per deal',700,790,'Deal-level SPVs (pipeline)'),
+  CN('yski','YSK IntermediateCo','UK',920,790,'Borrower → FreeholdCo (17116674) + 14-20 unit SPVs'),
+  CN('finco','DC GREECE FINCO','UK · 17296060',1140,790,'→ 4 Greek DCs @70%: Atalanti · Agios · Ptolemais · Thessaloniki'),
+  CN('evcspvs','5 Greek Solar/BESS SPVs','Greece',1780,790,'1,449.5 MW · 70-72.4% each'),
+  CN('greekstack','Greek stack: 3 PropCos + OpCo','Greece',2020,790,'VCGP1/2 · GREA H2 · OpCo (+3 LeaseCos)',{banks:['CrediaBank']}),
+  // cross-bridge nodes
+  CN('lendco','TKY LendCo Ltd','Cayman',260,940,'DDN funding vehicle'),
+  CN('zalana','Zalana Investment Holdings','BVI',40,940,'Investor',{cls:'formx'}),
+ ],
+ edges:[
+  // shareholders → holdcos
+  {f:'beyhum',t:'vcuk',label:'25%',kind:'ubo'},{f:'aslan',t:'vcuk',label:'25%',kind:'ubo'},{f:'mazen',t:'vcuk',label:'25%',kind:'ubo'},{f:'ahmad',t:'vcuk',label:'25%',kind:'ubo'},
+  {f:'mazen',t:'vci',label:'50%',kind:'ubo'},{f:'scpmdoa',t:'vci',label:'50%',kind:'ubo'},
+  {f:'mazen',t:'vccl',label:'40%',kind:'ubo'},{f:'scpmdoa',t:'vccl',label:'40%',kind:'ubo'},{f:'aslan',t:'vccl',label:'20%',kind:'ubo'},
+  {f:'muhannad',t:'mdoa',label:'100%',kind:'ubo'},{f:'mdoa',t:'scpmdoa',label:'99.9%',kind:'ubo'},
+  {f:'mazen',t:'vcclgp',label:'50%',kind:'ubo'},{f:'ahmad',t:'vcclgp',label:'50%',kind:'ubo'},
+  // Dublin chain
+  {f:'vcclgp',t:'dubgp',label:'100%',kind:'own'},{f:'dubgp',t:'fund',label:'GP',kind:'own'},
+  {f:'vccl',t:'fund',label:'31.96% A LP',kind:'own'},{f:'fund',t:'spvs5',label:'100% ×5',kind:'own'},
+  // VCUK portfolio
+  {f:'vcuk',t:'kilt',label:'17.6%',kind:'own'},{f:'vcuk',t:'vctky',label:'12.5% · 64.3% vote',kind:'own'},
+  {f:'vcuk',t:'pbsa1',label:'8.73% A · 55% C',kind:'own'},{f:'vcuk',t:'rocpart',label:'50% · PSC ≥75%',kind:'own'},
+  {f:'vcuk',t:'pcl1',label:'A 7,925 · C 75',kind:'own'},{f:'vcuk',t:'dcg',label:'75% A',kind:'own'},
+  {f:'vcuk',t:'vvh',label:'1.3%',kind:'own'},
+  // VCI portfolio
+  {f:'vci',t:'nrek',label:'18.67%',kind:'own'},{f:'vci',t:'evcsa',label:'42.5%',kind:'own'},
+  {f:'vci',t:'vca',label:'10% (A&C)',kind:'own'},{f:'vci',t:'scsp',label:'LP',kind:'own'},
+  {f:'vci',t:'pharma',label:'3% ⚑',kind:'own'},
+  // project internals
+  {f:'kilt',t:'encentres',label:'100%',kind:'own'},{f:'vctky',t:'3ky',label:'74.23% A · 33.33% B',kind:'own'},
+  {f:'pbsa1',t:'rocstack',label:'100%',kind:'own'},{f:'rocpart',t:'pbsaco',label:'per deal',kind:'own'},
+  {f:'pcl1',t:'yski',label:'100%',kind:'own'},{f:'dcg',t:'finco',label:'100%',kind:'own'},
+  {f:'evcsa',t:'evcspvs',label:'70–72.4%',kind:'own'},{f:'vca',t:'greekstack',label:'100% ×4',kind:'own'},
+  // external partners (ownership into projects)
+  {f:'elmyauk',t:'kilt',label:'42.5%',kind:'own'},{f:'zalana',t:'kilt',label:'15%',kind:'own'},
+  {f:'ckc',t:'pbsa1',label:'1.09% A',kind:'own'},{f:'katch',t:'rocpart',label:'JV',kind:'own'},
+  {f:'phi',t:'pcl1',label:'A 1,975 · C 25',kind:'own'},{f:'aqs',t:'nrek',label:'80%',kind:'own'},
+  {f:'elmyasl',t:'evcsa',label:'42.5%',kind:'own'},{f:'starinia',t:'evcsa',label:'15%',kind:'own'},
+  // ===== CROSS-PROJECT LINKS (amber) =====
+  {f:'lendco',t:'kilt',label:'24.9% — TKY capital funds the energy platform',kind:'x'},
+  {f:'elmyauk',t:'elmyasl',label:'same Elmya group (Sevilla) — bridges both energy structures',kind:'x'},
+  {f:'ckc',t:'pcl1',label:'Development Manager at Yeomans',kind:'x'},
+  {f:'ckc',t:'rocpart',label:'pipeline sourcing for the JV',kind:'x'},
+  {f:'scsp',t:'pcl1',label:'pools investor equity into PCL1',kind:'x'},
+  {f:'finco',t:'evcspvs',label:'Agios DC powered by ES Energy 2 PV+BESS (private wire)',kind:'x'},
+  {f:'lendco',t:'3ky',label:'funds 3KY DDNs',kind:'x'},
+ ]
+};
+
+const STRUCTS=[
+{tab:"Group & UBO", title:"Holding Companies — Shareholders & UBO", sub:"Slide 2. UBO chain right: Muhannad Hariri → MDOA (Cayman) → SCP MDOA (Monaco, 99.9% + 0.1% direct).", forest:[
+ {sh:[[ '25%',P('Mohamed Ali Beyhum','—')],['25%',P('Rami Aslan','—')],['25%',P('Mazen AbouChakra','—')],['25%',P('Ahmad Hariri','—')]],
+  root:{nm:'VALPRE CAPITAL UK LIMITED',j:'UK · CN 11872154',role:'Central operating co — AR of Vittoria Partners LLP (FCA). Holdings on the “VCUK Holdings” tab.',cls:'root',banks:['Barclays — main operating account'],kids:[]}},
+ {sh:[['50%',P('SCP MDOA †','Monaco')],['50%',P('Mazen AbouChakra','—')]],
+  root:{nm:'VALPRE CAPITAL INVESTMENTS SARL',j:'Luxembourg',role:'Investment HoldCo — see “VCI Holdings” tab.',cls:'root',banks:['Arab Bank','Banque BEMO'],kids:[]}},
+ {sh:[['40%',P('Mazen AbouChakra','UK resident')],['40%',P('SCP MDOA †','Monaco')],['20%',P('Rami Aslan','UAE resident')]],
+  root:{nm:'VALPRE CAPITAL CAYMAN LIMITED',j:'Cayman Islands',role:'Cayman HoldCo — 31.96% Class A LP of Dublin fund.',cls:'root',banks:['Arab Bank'],kids:[]}},
+ {sh:[['100%',P('Muhannad Hariri','non-EU resident; +0.1% of SCP MDOA directly')]],
+  root:{nm:'MDOA LIMITED',j:'Cayman Islands',role:'UBO vehicle',cls:'root',kids:[['99.9%',{nm:'SCP MDOA †',j:'Monaco',role:'Holds 50% VCI · 40% VCCL',kids:[]}]]}},
+]},
+{tab:"VCUK Holdings", title:"Valpre Capital UK Limited — Portfolio Holdings", sub:"Slide 3. Direct stakes; each subsidiary has its own tab.", forest:[
+ {sh:[], root:{nm:'VALPRE CAPITAL UK LIMITED',j:'UK · CN 11872154',role:'AR of Vittoria Partners LLP, FCA-regulated',cls:'root',banks:['Barclays'],kids:[
+  ['17.6%',{nm:'EVC Kilt Limited',j:'UK · 13949208',role:'→ 2 UK energy centres',kids:[]}],
+  ['12.5% econ · 64.3% vote',{nm:'VC TKY Limited',j:'UK · 13716369',role:'Three Kings Yard, Mayfair',kids:[]}],
+  ['8.73% A · 55% C',{nm:'VC PBSA1 Limited',j:'UK · 15466892',role:'The Roc Club → ROC / Alumrose LLP',kids:[]}],
+  ['50% · PSC ≥75%',{nm:'ROC PBSA Partners Ltd',j:'UK · 16777388',role:'PBSA JV with Katch',kids:[]}],
+  ['A 7,925 · C 75',{nm:'VC PCL1 Limited',j:'UK · 15182560',role:'Yeoman Square → YSK SPVs',kids:[]}],
+  ['75% A',{nm:'Valpre Capital DC Greece Ltd',j:'UK · 17290322',role:'→ FinCo · 4 Greek DCs',badge:'form',kids:[]}],
+  ['1.3%',{nm:'Vennre Ventures Holding (VVH) Ltd',j:'UK · 13923351',role:'Vennre private-markets platform',kids:[]}],
+ ]}},
+]},
+{tab:"VCI Holdings", title:"Valpre Capital Investments SARL — Portfolio", sub:"Slide 10. Lux RCS numbers to be confirmed per chart.", forest:[
+ {sh:[], root:{nm:'VALPRE CAPITAL INVESTMENTS SARL',j:'Luxembourg',role:'Investment HoldCo',cls:'root',banks:['Arab Bank','Banque BEMO'],kids:[
+  ['18.67%',{nm:'NREK 1 Limited',j:'Ireland · 663847',role:'10 Newmarket Sq — SOLD to MEAG',badge:'sold',kids:[]}],
+  ['42.5%',{nm:'EVC Energy SA',j:'Luxembourg',role:'Greek Solar PV & BESS platform',kids:[]}],
+  ['10% (A & C)',{nm:'Valpre Capital Athens SA',j:'Luxembourg',role:'YOTELPAD Athens HoldCo',kids:[]}],
+  ['LP',{nm:'VC PCL 1 SCSp',j:'Lux · to be formed',role:'GP: Valpre Capital GP SARL (tbf)',cls:'formx',badge:'form',kids:[]}],
+  ['3% ⚑',{nm:'Valpre Capital Pharma Limited',j:'Ireland · 665697',role:'Legacy pharma venture',badge:'exit',flag:'Chart shows 3%; earlier docs 66.66% — reconcile',banks:['AIB'],kids:[]}],
+ ]}},
+]},
+{tab:"VCDREF (Dublin)", title:"Valpre Capital Dublin Real Estate Fund", sub:"Slide 14 · certified charts Feb/Mar 2025. VCCL GP Ltd is held by Mazen & Ahmad DIRECTLY (not via VCCL). Fund LPs: VCCL 31.96% Class A · Other LPs 68.04%. All SPVs are Cayman cos holding Irish assets. Admin: Apex · Custody: Northern Trust · Lenders: AIB, CapitalFlow.", forest:[
+ {sh:[['50%',P('Mazen AbouChakra','—')],['50%',P('Ahmad Hariri','—')]],
+  root:{nm:'VCCL GP LIMITED',j:'Cayman Islands',role:'GP HoldCo',cls:'root',kids:[
+   ['100%',{nm:'Valpre Capital Dublin Real Estate GP',j:'Cayman Islands',role:'General Partner',kids:[
+    ['GP',{nm:'VALPRE CAPITAL DUBLIN REAL ESTATE FUND LP',j:'Cayman Islands',role:'24 Dublin properties · 163 apartments + 2 commercial · LPs: VCCL 31.96% A / Others 68.04% A',cls:'root',banks:['Northern Trust — custody','AIB — lending','CapitalFlow'],kids:[
+     ['100%',{nm:'Asset Resi Limited',j:'Cayman',role:'Irish residential SPV',banks:['AIB'],kids:[]}],
+     ['100%',{nm:'Asset Resi 2 Limited',j:'Cayman',role:'Irish residential SPV',banks:['AIB'],kids:[]}],
+     ['100%',{nm:'Asset Resi 3 Limited',j:'Cayman',role:'Irish residential SPV',kids:[]}],
+     ['100%',{nm:'Asset 401 Capel Limited',j:'Cayman',role:'401 Capel Street',kids:[]}],
+     ['100%',{nm:'Asset Commercial 2 Limited',j:'Cayman',role:'Commercial SPV',banks:['AIB','Arab Bank'],kids:[]}],
+    ]}],
+   ]}],
+ ]}},
+]},
+{tab:"Roc Club", title:"VC PBSA1 Limited — The Roc Club", sub:"Slide 6. 244-bed PBSA, Rockingham St SE1 · core at L5 of 24 · PC Jul 2028 · lenders OakNorth + Beaufort.", forest:[
+ {sh:[['8.73% A',P('Valpre Capital UK Ltd','UK')],['1.09% A',P('CKC Properties Ltd','UK · 05739185 · ex-assoc. Smart Street Furniture')],['90.18% B',P('Investors','38 external')]],
+  root:{nm:'VC PBSA1 LIMITED',j:'UK · 15466892',role:'Project TopCo — DDN & share issuer',cls:'root',banks:['Barclays','OakNorth — acq lender','Beaufort — construction'],kids:[
+   ['100%',{nm:'ROC Devco Limited',j:'UK · 15794729',role:'Development co',kids:[]}],
+   ['100%',{nm:'ROC Newco 1 Limited',j:'UK',role:'HoldCo · Alumrose member',kids:[]}],
+   ['100%',{nm:'ROC Newco 2 Limited',j:'UK',role:'HoldCo · Alumrose member',kids:[
+     ['members: Newco 1 + 2',{nm:'Alumrose LLP',j:'UK',role:'Owner of the land',kids:[]}],
+   ]}],
+ ]}},
+]},
+{tab:"Katch JV", title:"ROC PBSA Partners Ltd — PBSA Platform JV", sub:"Slide 7 (JV chart Jul 2026). PSC: VCUK ≥75%. Pipeline deals (Glasshouse, Arlington, Union St…) execute through per-deal Project Companies.", forest:[
+ {sh:[['50%',P('Valpre Capital UK Ltd','UK')],['—',P('Katch Capital Sarl','Luxembourg · Katch Investment Group')]],
+  root:{nm:'ROC PBSA PARTNERS LTD',j:'UK · 16777388',role:'PBSA JV TopCo — VCUK as Development Manager; investors via Class B',cls:'root',
+   flag:'CN 16777388 previously recorded as “31 Amelia Street Ltd” from folders; also reconcile VC PBSA 2 Ltd (16768696) & HGL Amelia Street (16856938) at Companies House',kids:[
+   ['per deal',{nm:'PBSA Company',j:'UK',role:'Deal-level HoldCo (investors Class B)',kids:[
+     ['100%',{nm:'Project Company',j:'UK',role:'PBSA development SPV',kids:[]}],
+   ]}],
+ ]}},
+]},
+{tab:"DC Greece", title:"Valpre Capital DC Greece — Greek Data Centres", sub:"Slide 8 · per VC Infrastructure Greece chart (9 Jun 2026). Both UK cos incorporated Jun 2026 at the group address.", forest:[
+ {sh:[['75% A',P('Valpre Capital UK Ltd','UK')],['25% B',P('Non-UK Resident Investors','Class B')]],
+  root:{nm:'VALPRE CAPITAL DC GREECE LTD',j:'UK · 17290322',role:'UK HoldCo',cls:'root',badge:'form',kids:[
+   ['100%',{nm:'VALPRE CAPITAL DC GREECE FINCO LTD',j:'UK · 17296060',role:'UK FinCo',kids:[
+    ['70%',{nm:'Atalanti DC',j:'Greece',role:'Data centre project · 30% third-party local contractors',kids:[]}],
+    ['70%',{nm:'Agios DC',j:'Greece',role:'Data centre project (Agios Antonios — RES-paired)',kids:[]}],
+    ['70%',{nm:'Ptolemais DC',j:'Greece',role:'Data centre project',kids:[]}],
+    ['70%',{nm:'Thessaloniki DC',j:'Greece',role:'Data centre project',kids:[]}],
+   ]}],
+ ]}},
+]},
+{tab:"Athens", title:"Valpre Capital Athens SA — YOTELPAD Athens", sub:"Slide 13 (Mar 2026 chart · ΓΕΜΗ data). LeaseCos wholly owned by their PropCos under 12-year leases; Yotel HMAs at PropCo level; OpCo centralises costs.", forest:[
+ {sh:[['10% (A & C)',P('Valpre Capital Investments SARL','Luxembourg')],['90% (B)',P('Investors','Class B shareholders')]],
+  root:{nm:'VALPRE CAPITAL ATHENS SA',j:'Luxembourg',role:'Lux HoldCo',cls:'root',kids:[
+   ['100%',{nm:'VC GREA Properties 1 S.M.S.A. (VCGP1)',j:'Greece · ΓΕΜΗ 147648501000',role:'PropCo — EPIKOUROU (ex-Zoia 28) · Yotel HMA',banks:['Attica/CrediaBank — financing'],kids:[
+    ['100%',{nm:'VCGP Epikourou 1 S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'LeaseCo — 12-yr lease',kids:[]}],
+    ['100%',{nm:'VCGP Epikourou 2 S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'LeaseCo',kids:[]}],
+   ]}],
+   ['100%',{nm:'VC GREA Properties 2 S.M.S.A. (VCGP2)',j:'Greece · ΓΕΜΗ 161418001000',role:'PropCo — MILTIADOU (ex-Zoia 49)',kids:[
+    ['100%',{nm:'VCGP Miltiadou S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'LeaseCo',kids:[]}],
+   ]}],
+   ['100%',{nm:'GREA Holdings 2 S.A. (→ VCGP3)',j:'Greece · ΓΕΜΗ TBC',role:'PropCo — IRAS (open, trading)',flag:'ΓΕΜΗ record & rename to confirm',banks:['CrediaBank — Iras financing'],kids:[]}],
+   ['100%',{nm:'VCGP OpCo S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'OpCo — staff & cost centralisation',banks:['Credia Bank — e-banking'],kids:[]}],
+ ]}},
+]},
+{tab:"Yeomans (PCL1)", title:"VC PCL1 Limited — Yeoman Square, Knightsbridge", sub:"Slide 5. 60 Walton St SW3 · lender Unbranded Finance 2 LLP (acq ~£11m + dev ~£31m). SCSp & GP SARL to be formed; SCSp pools investors as LP structure (LP: VCI).", forest:[
+ {sh:[['A 7,925 · C 75',P('Valpre Capital UK Ltd','UK · CN 11872154')],['A 1,975 · C 25',P('Phi London Limited','UK · 09825174')],['Class B + DDNs',P('Third-Party Investors','external')]],
+  root:{nm:'VC PCL1 LIMITED',j:'UK · 15182560',role:'Project TopCo',cls:'root',banks:['Barclays','Unbranded Finance 2 LLP — facilities'],kids:[
+   ['100%',{nm:'YSK IntermediateCo Limited',j:'UK',role:'Borrower co — will incorporate 14–20 unit SPVs (air leases)',kids:[
+    ['100%',{nm:'YSK FreeholdCo Limited',j:'UK · 17116674',role:'Freehold PropCo — 60 Walton Street',kids:[]}],
+    ['planned',{nm:'Unit SPVs × 14–20',j:'UK · to be formed',role:'Per-unit air-lease SPVs',cls:'formx',badge:'form',kids:[]}],
+   ]}],
+ ]}},
+ {sh:[['GP',P('Valpre Capital GP SARL','Lux · to be formed')],['LP',P('Valpre Capital Investments SARL','Luxembourg')]],
+  root:{nm:'VC PCL 1 SCSp',j:'Luxembourg · to be formed',role:'Investor pooling partnership feeding VC PCL1',cls:'formx',badge:'form',kids:[]}},
+]},
+{tab:"TKY (Mayfair)", title:"VC TKY Limited — Three Kings Yard", sub:"Slide 4. Completed Mar 2025; 4 of 8 units sold £26.2m; DDNs due Mar 2027.", forest:[
+ {sh:[['12.5% (A 64.28%)',P('Valpre Capital UK Ltd','UK — 64.3% vote')],['7.7% (A 35.72%)',P('Investors — Class A','external')],['79.8% (B)',P('Investors — Class B','external')]],
+  root:{nm:'VC TKY LIMITED',j:'UK · 13716369',role:'Investment vehicle',cls:'root',banks:['Barclays — project account'],kids:[
+   ['74.23% A · 33.33% B',{nm:'3KY MAYFAIR LIMITED',j:'UK · 13856460',role:'Asset co — 8 apartments + members club',banks:['Close Brothers — senior (£6.4m rem.)'],kids:[]}],
+ ]}},
+ {sh:[], root:{nm:'TKY LendCo Limited',j:'Cayman Islands',role:'DDN funding vehicle · also 24.9% of EVC Kilt',cls:'root',kids:[]}},
+]},
+{tab:"EVC Energy SA", title:"EVC Energy SA — Greek Solar PV & BESS", sub:"Slide 12. Total pipeline 1,449.5 MW (PV 722 · BESS 727.5). ⚑ Chart face 42.5/42.5/15 vs 1-Jun-26 note 49.75/49.75/0.5 — reconcile. Elmya Holdco (Spain): Pinar family/Pice 44.47% · Clove Capital 22.63%.", forest:[
+ {sh:[['42.5%',P('Valpre Capital Investments SARL','Luxembourg')],['42.5%',P('Elmya Energy SL','Spain · Elmya Holdco group')],['15%',P('Starinia Investments Ltd','Cyprus · via Osiris Trustees (BVI) — Calypso Trust')]],
+  root:{nm:'EVC ENERGY SA',j:'Luxembourg',role:'Solar PV / BESS HoldCo',cls:'root',flag:'Shareholding split discrepancy — see subtitle',kids:[
+   ['71.3%',{nm:'ES Energy 2 — Agios Antonios',j:'Greece',role:'PV 217 MW + BESS 195 MW (DC flagship)',kids:[]}],
+   ['72.4%',{nm:'Staat Vast II — Ptolemais',j:'Greece',role:'PV 150 MW + BESS 150 MW · fully permitted',kids:[]}],
+   ['70.4%',{nm:'Elmya Greece 2 — Livadea',j:'Greece',role:'PV 50 MW + BESS 50 MW',kids:[]}],
+   ['70.0%',{nm:'Elmya Greece 4 — Kyrtoni',j:'Greece',role:'PV 55 MW + BESS 50 MW',kids:[]}],
+   ['70.0%',{nm:'Elmya Greece 5 — Zarko / Yangova / Pieria',j:'Greece',role:'PV 250 MW + BESS 282.5 MW across 3 sites',kids:[]}],
+ ]}},
+]},
+{tab:"EVC Kilt", title:"EVC Kilt Limited — UK Energy Centres", sub:"Slide 9. Two energy centres (Kilt solar portfolio exited to Sonnedix 2025).", forest:[
+ {sh:[['42.5%',P('Elmya Energy UK Ltd','UK · 13809258')],['24.9%',P('TKY LendCo Limited','Cayman Islands')],['17.6%',P('Valpre Capital UK Ltd','UK')],['15%',P('Zalana Investment Holdings','BVI')]],
+  root:{nm:'EVC KILT LIMITED',j:'UK · 13949208',role:'Energy development co',cls:'root',banks:['Barclays'],kids:[
+   ['100%',{nm:'Strathruddie Energy Centre Ltd',j:'UK · 13026486',role:'Energy centre SPV',kids:[]}],
+   ['100%',{nm:'IQ Energy Centre Ltd',j:'UK',role:'Energy centre SPV',kids:[]}],
+ ]}},
+]},
+{tab:"NREK1 (sold)", title:"NREK1 Limited — 10 Newmarket Square", sub:"Slide 11. 134-unit BTR, Dublin 8 — SOLD to MEAG Jan 2026 at 24% net IRR / 1.5x.", forest:[
+ {sh:[['80% (480 A)',P('AQS European RE II Coöperatief U.A.','Netherlands · under AREPE II (Lux) · AQS Irish Properties B.V. in chain')],['18.7% (112 A + 22 B)',P('Valpre Capital Investments SARL','Luxembourg')],['1.3% (8 A + 78 B)',P('Mark O'+String.fromCharCode(8217)+'Brien','Individual · Revelate Capital')]],
+  root:{nm:'NREK1 LIMITED',j:'Ireland · 663847',role:'Deal vehicle — asset sold; wind-down status to confirm ⚑',cls:'root',badge:'sold',flag:'Post-sale wind-down to confirm',kids:[]}},
+]},
+{tab:"Dissolved", title:"Dissolved Entities", sub:"Slides 15–18. Records/audit only — excluded from live registers.", forest:[
+ {sh:[['33.34%',P('Mohamed Ali Beyhum','—')],['33.33%',P('Ahmad Hariri','—')],['33.33%',P('Mazen AbouChakra','—')]],
+  root:{nm:'Valpre Capital SAL + LEGC (Lebanon Equity Growth Capital SAL Holding)',j:'Lebanon',role:'Beirut companies — both dissolved',cls:'root',badge:'diss',kids:[]}},
+ {sh:[['100%',P('Valpre Capital UK Ltd','UK')]],
+  root:{nm:'VC LG Limited',j:'UK · 15496674',role:'Dissolved 25 Nov 2025',cls:'root',badge:'diss',kids:[
+   ['50% (Brasted 50%)',{nm:'UVC Liberty Gardens Limited',j:'UK · 15568691',role:'Dissolved 25 Nov 2025 · Brasted ← Allington (K. Allington / K. Ewart)',cls:'diss',badge:'diss',kids:[]}],
+ ]}},
+ {sh:[['66.67%',P('Valpre Capital Investments SARL','Luxembourg')],['33.33%',P('Emmanuel Aymes','Individual')]],
+  root:{nm:'Evolv Properties Limited',j:'Ireland · CRO 638733',role:'Voluntary strike-off effective 4 Nov 2024',cls:'root',badge:'diss',kids:[]}},
+]},
 ];
 
-const badgeMap={live:["b-live","ACTIVE"],sold:["b-sold","SOLD"],exit:["b-exit","EXITED/DORMANT"],form:["b-form","IN FORMATION"],dead:["b-dead","DEAD DEAL"]};
-let all=[];
-function nodeHtml(n,path){
-  const id=all.length; all.push({...n,path});
-  const badge=n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:"";
-  const flag=n.flag?`<div class="fl">⚑ ${n.flag}</div>`:"";
-  const own=n.own&&n.own!=="—"?`<div class="ow">◈ ${n.own}</div>`:"";
-  const banks=n.banks&&n.banks.length?`<div class="bk">🏦 ${n.banks.map(b=>b.split(" — ")[0]).join(" · ")}</div>`:"";
-  let h=`<div class="node"><div class="card juris-${n.j}" data-id="${id}">
-    <div class="nm">${n.nm}${badge}</div><div class="rl">${n.j} · ${n.role}</div>${own}${banks}${flag}</div>`;
-  if(n.kids&&n.kids.length){h+=`<div class="kids">${n.kids.map(k=>nodeHtml(k,path+" › "+n.nm)).join("")}</div>`;}
-  return h+`</div>`;
+// ---------- layout engine ----------
+const NW=190, HGAP=26, VGAP=86, SHGAP=30, FOREST_GAP=90, TOP=70;
+const badgeMap={live:['b-live','ACTIVE'],sold:['b-sold','SOLD'],form:['b-form','IN FORMATION'],diss:['b-diss','DISSOLVED'],exit:['b-exit','LEGACY']};
+let nodesFlat=[], edges=[];
+
+function measure(n){ // subtree width
+  if(!n.kids || !n.kids.length){ n._w = NW; return NW; }
+  let w = 0;
+  n.kids.forEach(([p,k],i)=>{ w += measure(k); if(i) w += HGAP; });
+  n._w = Math.max(NW, w); return n._w;
 }
-function render(){
-  all=[];
-  const c=document.getElementById("canvas");
-  c.innerHTML=`<div class="boardrow">`+DATA.map(b=>{
-    const badge=b.badge?`<span class="badge ${badgeMap[b.badge][0]}">${badgeMap[b.badge][1]}</span>`:"";
-    return `<div class="board${b.group?" group":""}"><h2>${b.board}${badge}</h2><div class="sub">${b.sub}</div>
-      <div class="tree">${b.nodes.map(n=>nodeHtml(n,b.board)).join("")}</div></div>`;
-  }).join("")+`</div>`;
-  document.querySelectorAll(".card[data-id]").forEach(el=>{
-    el.addEventListener("click",e=>{e.stopPropagation(); openPanel(+el.dataset.id);});
+function place(n, x, y){ // x = left edge of subtree
+  n._x = x + n._w/2 - NW/2; n._y = y;
+  nodesFlat.push(n);
+  if(n.kids && n.kids.length){
+    let cx = x + (n._w - n.kids.reduce((a,[p,k],i)=>a+k._w+(i?HGAP:0),0))/2;
+    n.kids.forEach(([p,k])=>{
+      place(k, cx, y + nodeH(n) + VGAP);
+      edges.push({x1:n._x+NW/2, y1:n._y+nodeH(n), x2:k._x+NW/2, y2:k._y, label:p});
+      cx += k._w + HGAP;
+    });
+  }
+}
+function nodeH(n){ // estimate height
+  let h = 30 + Math.ceil((n.role||'').length/34)*12;
+  if(n.banks && n.banks.length) h += 13;
+  if(n.flag) h += Math.ceil(n.flag.length/36)*11;
+  return Math.max(52, h);
+}
+function renderCombined(){
+  nodesFlat=[]; edges=[];
+  const chart = document.getElementById('chart');
+  chart.querySelectorAll('.nd,.pct,.chart-title,.chart-sub').forEach(e=>e.remove());
+  const t=document.createElement('div'); t.className='chart-title'; t.style.left='20px'; t.style.top='14px'; t.textContent=COMBINED.title; chart.appendChild(t);
+  const sb=document.createElement('div'); sb.className='chart-sub'; sb.style.left='20px'; sb.style.top='34px'; sb.style.maxWidth='900px'; sb.textContent=COMBINED.sub; chart.appendChild(sb);
+  const byId={};
+  COMBINED.nodes.forEach(n=>{
+    byId[n.id]=n; n._x=n.x; n._y=n.y+70;
+    const d=document.createElement('div');
+    d.className='nd '+(n.cls||''); d.style.left=n._x+'px'; d.style.top=n._y+'px';
+    const badge=n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:'';
+    const banks=n.banks&&n.banks.length?`<div class="bk">🏦 ${n.banks.join(' · ')}</div>`:'';
+    const flag=n.flag?`<div class="fl">⚑ ${n.flag}</div>`:'';
+    d.innerHTML=`<div class="nm">${n.nm}${badge}</div><div class="meta">${n.j}${n.role?' · '+n.role:''}</div>${banks}${flag}`;
+    d.addEventListener('click',e=>{e.stopPropagation(); openPanel(n, COMBINED.title);});
+    d.dataset.hay=(n.nm+' '+n.j+' '+(n.role||'')+' '+(n.banks||[]).join(' ')).toLowerCase();
+    chart.appendChild(d); n._el=d;
+  });
+  requestAnimationFrame(()=>{
+    const svg=document.getElementById('wires');
+    let maxX=0,maxY=0;
+    COMBINED.nodes.forEach(n=>{n._h=n._el.offsetHeight; maxX=Math.max(maxX,n._x+NW); maxY=Math.max(maxY,n._y+n._h);});
+    svg.setAttribute('width',maxX+120); svg.setAttribute('height',maxY+120);
+    chart.style.width=(maxX+120)+'px'; chart.style.height=(maxY+120)+'px';
+    chart.querySelectorAll('.pct').forEach(e=>e.remove());
+    let paths='';
+    COMBINED.edges.forEach(e=>{
+      const a=byId[e.f], b=byId[e.t]; if(!a||!b) return;
+      const ax=a._x+NW/2, bx=b._x+NW/2;
+      let x1,y1,x2,y2;
+      if(a._y+a._h <= b._y){ x1=ax; y1=a._y+a._h; x2=bx; y2=b._y; }        // downward
+      else if(b._y+b._h <= a._y){ x1=ax; y1=a._y; x2=bx; y2=b._y+b._h; }   // upward
+      else { // side-to-side
+        if(ax<bx){ x1=a._x+NW; y1=a._y+a._h/2; x2=b._x; y2=b._y+b._h/2; }
+        else { x1=a._x; y1=a._y+a._h/2; x2=b._x+NW; y2=b._y+b._h/2; }
+      }
+      const mx=(x1+x2)/2, my=(y1+y2)/2;
+      const style = e.kind==='x' ? 'stroke="#E8A33D" stroke-width="2.4" stroke-dasharray="7 5"'
+                  : e.kind==='ubo' ? 'stroke="#1F3768" stroke-width="1.4"'
+                  : 'stroke="#6D94AD" stroke-width="1.5"';
+      paths+=`<path d="M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}" fill="none" ${style}/>`;
+      if(e.label){
+        const l=document.createElement('div'); l.className='pct';
+        if(e.kind==='x'){ l.style.color='#A66A0F'; l.style.border='1px solid #E8A33D'; }
+        l.style.left=mx+'px'; l.style.top=my+'px'; l.textContent=e.label;
+        chart.appendChild(l);
+      }
+    });
+    svg.innerHTML=paths;
   });
 }
-function openPanel(id){
-  const n=all[id];
-  const banks=n.banks&&n.banks.length?n.banks.map(b=>`<dd>• ${b}</dd>`).join(""):"<dd>None recorded in estate</dd>";
-  document.getElementById("panelBody").innerHTML=`
-    <h3>${n.nm}</h3><div style="font-size:11px;color:var(--grey2)">${n.path}</div>
-    <dl>
-      <dt>Jurisdiction</dt><dd>${n.j}</dd>
-      <dt>Role / purpose</dt><dd>${n.role}</dd>
-      <dt>Ownership</dt><dd>${n.own||"—"}</dd>
-      <dt>Banking / lenders</dt>${banks}
-      <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">${n.ev||"Structure-chart pass, Jul 2026"}</dd>
-    </dl>
-    ${n.flag?`<div class="flagbox">⚑ To verify: ${n.flag}</div>`:""}`;
-  document.getElementById("panel").classList.add("open");
-}
-function closePanel(){document.getElementById("panel").classList.remove("open");}
-
-let scale=.8, ox=20, oy=20, drag=null;
-const vp=document.getElementById("viewport"), cv=document.getElementById("canvas");
-function apply(){cv.style.transform=`translate(${ox}px,${oy}px) scale(${scale})`;}
-vp.addEventListener("mousedown",e=>{drag={x:e.clientX-ox,y:e.clientY-oy}; vp.classList.add("dragging");});
-window.addEventListener("mousemove",e=>{if(drag){ox=e.clientX-drag.x; oy=e.clientY-drag.y; apply();}});
-window.addEventListener("mouseup",()=>{drag=null; vp.classList.remove("dragging");});
-vp.addEventListener("wheel",e=>{e.preventDefault();
-  const f=e.deltaY<0?1.1:0.9, r=vp.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
-  ox=mx-(mx-ox)*f; oy=my-(my-oy)*f; scale=Math.min(2.2,Math.max(.25,scale*f)); apply();},{passive:false});
-
-document.getElementById("search").addEventListener("input",e=>{
-  const q=e.target.value.toLowerCase().trim();
-  document.querySelectorAll(".card[data-id]").forEach(el=>{
-    const n=all[+el.dataset.id];
-    const hay=(n.nm+" "+n.role+" "+n.j+" "+(n.own||"")+" "+(n.banks||[]).join(" ")+" "+n.path).toLowerCase();
-    el.classList.toggle("hl", q.length>1 && hay.includes(q));
+function renderStruct(si){
+  if(si===-1){ renderCombined(); return; }
+  const st = STRUCTS[si];
+  nodesFlat=[]; edges=[];
+  const chart = document.getElementById('chart');
+  chart.querySelectorAll('.nd,.pct,.chart-title,.chart-sub').forEach(e=>e.remove());
+  let fx = 20, maxBottom = 0;
+  st.forest.forEach(f=>{
+    // shareholders row
+    const shs = f.sh || [];
+    measure(f.root);
+    const shWidth = shs.length ? shs.length*NW + (shs.length-1)*SHGAP : 0;
+    const treeW = Math.max(f.root._w, shWidth);
+    let shY = TOP + 40;
+    let rootY = shY + (shs.length ? 52 + VGAP : 0);
+    // place shareholders
+    let sx = fx + (treeW - shWidth)/2;
+    shs.forEach(([p,person])=>{
+      person._x = sx; person._y = shY; person._w = NW;
+      nodesFlat.push(person);
+      sx += NW + SHGAP;
+    });
+    // place tree
+    place(f.root, fx + (treeW - f.root._w)/2, rootY);
+    // shareholder edges
+    shs.forEach(([p,person])=>{
+      edges.push({x1:person._x+NW/2, y1:person._y+46, x2:f.root._x+NW/2, y2:f.root._y, label:p});
+    });
+    // track extents
+    nodesFlat.forEach(n=>{ maxBottom = Math.max(maxBottom, (n._y||0)+nodeH(n)); });
+    fx += treeW + FOREST_GAP;
   });
+  // title
+  const t = document.createElement('div'); t.className='chart-title'; t.style.left='20px'; t.style.top='14px'; t.textContent = st.title; chart.appendChild(t);
+  const sb = document.createElement('div'); sb.className='chart-sub'; sb.style.left='20px'; sb.style.top='34px'; sb.textContent = st.sub; chart.appendChild(sb);
+  // nodes
+  nodesFlat.forEach((n,i)=>{
+    const d = document.createElement('div');
+    d.className = 'nd ' + (n.cls||'');
+    d.style.left = n._x+'px'; d.style.top = n._y+'px';
+    const badge = n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:'';
+    const banks = n.banks&&n.banks.length?`<div class="bk">🏦 ${n.banks.map(b=>b.split(' — ')[0]).join(' · ')}</div>`:'';
+    const flag = n.flag?`<div class="fl">⚑ ${n.flag}</div>`:'';
+    d.innerHTML = `<div class="nm">${n.nm}${badge}</div><div class="meta">${n.j}${n.role?' · '+n.role:''}</div>${banks}${flag}`;
+    d.addEventListener('click', e=>{e.stopPropagation(); openPanel(n, st.title);});
+    d.dataset.hay = (n.nm+' '+n.j+' '+(n.role||'')+' '+(n.banks||[]).join(' ')).toLowerCase();
+    chart.appendChild(d);
+    n._el = d;
+  });
+  // measure real heights, redraw edges from actual boxes
+  requestAnimationFrame(()=>{
+    const svg = document.getElementById('wires');
+    let maxX=0, maxY=0;
+    nodesFlat.forEach(n=>{ n._h = n._el.offsetHeight; maxX=Math.max(maxX,n._x+NW); maxY=Math.max(maxY,n._y+n._h); });
+    svg.setAttribute('width', maxX+80); svg.setAttribute('height', maxY+80);
+    document.getElementById('chart').style.width=(maxX+80)+'px';
+    document.getElementById('chart').style.height=(maxY+80)+'px';
+    let paths='';
+    chart.querySelectorAll('.pct').forEach(e=>e.remove());
+    edges.forEach(e=>{
+      const srcN = nodesFlat.find(n=>Math.abs(n._x+NW/2-e.x1)<1 && Math.abs(n._y-e.y1)<200 && n._y<e.y2);
+      const y1 = srcN? srcN._y + srcN._h : e.y1;
+      const midY = (y1 + e.y2)/2;
+      paths += `<path d="M ${e.x1} ${y1} L ${e.x1} ${midY} L ${e.x2} ${midY} L ${e.x2} ${e.y2}" fill="none" stroke="#6D94AD" stroke-width="1.5"/>`;
+      if(e.label){
+        const l = document.createElement('div'); l.className='pct';
+        l.style.left = e.x2+'px'; l.style.top = (e.y2-12)+'px'; l.textContent = e.label;
+        chart.appendChild(l);
+      }
+    });
+    svg.innerHTML = paths + '<defs></defs>';
+  });
+}
+// ---------- panel ----------
+function openPanel(n, structTitle){
+  const banks = n.banks&&n.banks.length? n.banks.map(b=>`<dd>• ${b}</dd>`).join(''):'<dd>None recorded</dd>';
+  document.getElementById('panelBody').innerHTML = `
+   <h3>${n.nm}</h3><div style="font-size:11px;color:var(--grey2)">${structTitle}</div>
+   <dl><dt>Jurisdiction / registration</dt><dd>${n.j}</dd>
+   <dt>Role</dt><dd>${n.role||'—'}</dd>
+   <dt>Banking / lenders</dt>${banks}
+   <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">Group Structure — Detailed Entity Charts, 30 Jun 2026</dd></dl>
+   ${n.flag?`<div class="flagbox">⚑ ${n.flag}</div>`:''}`;
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){document.getElementById('panel').classList.remove('open');}
+// ---------- tabs ----------
+let current=-1;
+const tabsEl=document.getElementById('tabs');
+const cb=document.createElement('button'); cb.className='tab active'; cb.textContent='⊕ All — Combined';
+cb.addEventListener('click',()=>{current=-1; document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===0)); renderStruct(-1); resetView();});
+tabsEl.appendChild(cb);
+STRUCTS.forEach((s,i)=>{
+  const b=document.createElement('button'); b.className='tab'; b.textContent=s.tab;
+  b.addEventListener('click',()=>{current=i; document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i+1)); renderStruct(i); resetView();});
+  tabsEl.appendChild(b);
 });
-
-render(); apply();
+// ---------- pan & zoom ----------
+let scale=.9, ox=10, oy=0, drag=null;
+const vp=document.getElementById('viewport'), cv=document.getElementById('canvas');
+function apply(){cv.style.transform=`translate(${ox}px,${oy}px) scale(${scale})`;}
+function resetView(){scale=.9; ox=10; oy=0; apply();}
+vp.addEventListener('mousedown',e=>{drag={x:e.clientX-ox,y:e.clientY-oy}; vp.classList.add('dragging');});
+window.addEventListener('mousemove',e=>{if(drag){ox=e.clientX-drag.x; oy=e.clientY-drag.y; apply();}});
+window.addEventListener('mouseup',()=>{drag=null; vp.classList.remove('dragging');});
+vp.addEventListener('wheel',e=>{e.preventDefault();
+  const f=e.deltaY<0?1.1:0.9, r=vp.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  ox=mx-(mx-ox)*f; oy=my-(my-oy)*f; scale=Math.min(2.5,Math.max(.3,scale*f)); apply();},{passive:false});
+// ---------- search ----------
+document.getElementById('search').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  // search highlights on the CURRENT sheet (combined sheet holds everything)
+  setTimeout(()=>{
+    document.querySelectorAll('.nd').forEach(el=>{ el.classList.toggle('hl', q.length>1 && el.dataset.hay.includes(q)); });
+  }, 50);
+});
+renderStruct(-1); apply();
 </script>
 </body>
 </html>

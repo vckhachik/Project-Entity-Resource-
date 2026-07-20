@@ -69,14 +69,14 @@
 </head>
 <body>
 <header>
-  <h1>VALPRE CAPITAL <span>— Group Structure Charts v4</span></h1>
+  <h1>VALPRE CAPITAL <span>— Group Structure Charts v5</span></h1>
   <input id="search" type="text" placeholder="Search entity, %, bank, CN…">
   <span class="hint">drag to pan · scroll to zoom · click a box for detail</span>
 </header>
 <div id="tabs"></div>
 <div id="viewport"><div id="canvas"><div id="chart"><svg id="wires"></svg></div></div></div>
 <aside id="panel"><button class="close" onclick="closePanel()">✕</button><div id="panelBody"></div></aside>
-<footer>v4 — reconciled to “Group Structure — Detailed Entity Charts” as at 30 Jun 2026. Ownership % on connectors as charted. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
+<footer>v5 — reconciled to “Group Structure — Detailed Entity Charts” dated 6 Jul 2026. Ownership % on connectors as charted. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
 
 <script>
 // node: {nm, j, role, cls(person/root/plain), badge, flag, banks, note, kids:[[pct, node]]}
@@ -87,7 +87,7 @@ const P=(nm,j,note)=>({nm,j,role:note||'Individual',cls:'person',kids:[]});
 const CN=(id,nm,j,x,y,role,opt)=>Object.assign({id,nm,j,x,y,role},opt||{});
 const COMBINED={
  title:"All Structures — Combined Sheet",
- sub:"Every entity on one canvas. Blue lines = ownership (% as charted, 30 Jun 2026). Amber dashed = CROSS-PROJECT links — where structures touch. Dashed boxes = external partners / in formation. Sub-stacks collapsed where detail lives on the other tabs.",
+ sub:"Every entity on one canvas. Blue lines = ownership (% as charted, 6 Jul 2026). Amber dashed = CROSS-PROJECT links — where structures touch. Dashed boxes = external partners / in formation. Sub-stacks collapsed where detail lives on the other tabs.",
  nodes:[
   // individuals & UBO
   CN('beyhum','Mohamed Ali Beyhum','Individual',260,30,'',{cls:'person'}),
@@ -119,22 +119,22 @@ const COMBINED={
   CN('kilt','EVC KILT LTD','UK · 13949208',40,620,'UK energy dev co',{banks:['Barclays']}),
   CN('vctky','VC TKY LTD','UK · 13716369',260,620,'Three Kings Yard, Mayfair',{banks:['Barclays']}),
   CN('pbsa1','VC PBSA1 LTD','UK · 15466892',480,620,'The Roc Club — 244 beds',{banks:['OakNorth','Beaufort']}),
-  CN('rocpart','ROC PBSA PARTNERS LTD','UK · 16777388',700,620,'PBSA JV platform',{flag:'vs VC PBSA 2 / HGL Amelia — verify'}),
+  CN('rocpart','ROC PBSA PARTNERS LTD','UK · 16777388',700,620,'PBSA JV platform (VCUK Dev Mgr)'),
   CN('pcl1','VC PCL1 LTD','UK · 15182560',920,620,'Yeoman Square, Knightsbridge',{banks:['Unbranded Fin 2']}),
-  CN('dcg','VC DC GREECE LTD','UK · 17290322',1140,620,'Greek data centres HoldCo',{badge:'form'}),
+  CN('dcg','VC DC GREECE LTD','UK · 17290322',1140,620,'Greek data centres HoldCo'),
   CN('scsp','VC PCL 1 SCSp','Lux · to be formed',1360,620,'Investor pooling — GP: VC GP SARL (tbf)',{cls:'formx',badge:'form'}),
   CN('nrek','NREK1 LTD','Ireland · 663847',1560,620,'10 Newmarket Sq — SOLD to MEAG',{badge:'sold'}),
-  CN('evcsa','EVC ENERGY SA','Luxembourg',1780,620,'Solar PV/BESS HoldCo',{flag:'42.5/42.5/15 vs 49.75/49.75/0.5'}),
+  CN('evcsa','EVC ENERGY SA','Luxembourg · RCS B263192',1780,620,'Solar PV/BESS HoldCo',{flag:'42.5/42.5/15 vs 49.75/49.75/0.5'}),
   CN('vca','VC ATHENS SA','Luxembourg',2020,620,'YOTELPAD Athens HoldCo'),
-  CN('pharma','VC Pharma Ltd','Ireland · 665697',1360,315,'Legacy',{badge:'exit',flag:'3% vs 66.66%'}),
+  CN('pharma','VC Pharma Ltd','Ireland · 665697',1360,315,'Legacy',{badge:'exit'}),
   // row B
   CN('encentres','2 Energy Centre SPVs','UK',40,790,'Strathruddie · IQ (100% each)'),
   CN('3ky','3KY MAYFAIR LTD','UK · 13856460',260,790,'8 apartments + club',{banks:['Close Brothers']}),
   CN('rocstack','ROC DevCo · NewCo 1 · NewCo 2','UK',480,790,'100% each → Alumrose LLP (land)'),
-  CN('pbsaco','PBSA Co → Project Co','UK · per deal',700,790,'Deal-level SPVs (pipeline)'),
-  CN('yski','YSK IntermediateCo','UK',920,790,'Borrower → FreeholdCo (17116674) + 14-20 unit SPVs'),
+  CN('pbsaco','RPP1 Ltd → JVCO LLP → Almira Property','UK · 16768696 / 14599161',700,790,'Deal stack — JVCO LLP tbf'),
+  CN('yski','YSK IntermediateCo','UK · 17083407',920,790,'Borrower (ex-FreeholdCo) → new FreeholdCo tbf'),
   CN('finco','DC GREECE FINCO','UK · 17296060',1140,790,'→ 4 Greek DCs @70%: Atalanti · Agios · Ptolemais · Thessaloniki'),
-  CN('evcspvs','5 Greek Solar/BESS SPVs','Greece',1780,790,'1,449.5 MW · 70-72.4% each'),
+  CN('evcspvs','6 Greek Solar/BESS SPVs','Greece',1780,790,'1,449.5 MW · 70-72.4% each'),
   CN('greekstack','Greek stack: 3 PropCos + OpCo','Greece',2020,790,'VCGP1/2 · GREA H2 · OpCo (+3 LeaseCos)',{banks:['CrediaBank']}),
   // cross-bridge nodes
   CN('lendco','TKY LendCo Ltd','Cayman',260,940,'DDN funding vehicle'),
@@ -158,7 +158,7 @@ const COMBINED={
   // VCI portfolio
   {f:'vci',t:'nrek',label:'18.67%',kind:'own'},{f:'vci',t:'evcsa',label:'42.5%',kind:'own'},
   {f:'vci',t:'vca',label:'10% (A&C)',kind:'own'},{f:'vci',t:'scsp',label:'LP',kind:'own'},
-  {f:'vci',t:'pharma',label:'3% ⚑',kind:'own'},
+  {f:'vci',t:'pharma',label:'3%',kind:'own'},
   // project internals
   {f:'kilt',t:'encentres',label:'100%',kind:'own'},{f:'vctky',t:'3ky',label:'74.23% A · 33.33% B',kind:'own'},
   {f:'pbsa1',t:'rocstack',label:'100%',kind:'own'},{f:'rocpart',t:'pbsaco',label:'per deal',kind:'own'},
@@ -198,7 +198,7 @@ const STRUCTS=[
   ['8.73% A · 55% C',{nm:'VC PBSA1 Limited',j:'UK · 15466892',role:'The Roc Club → ROC / Alumrose LLP',kids:[]}],
   ['50% · PSC ≥75%',{nm:'ROC PBSA Partners Ltd',j:'UK · 16777388',role:'PBSA JV with Katch',kids:[]}],
   ['A 7,925 · C 75',{nm:'VC PCL1 Limited',j:'UK · 15182560',role:'Yeoman Square → YSK SPVs',kids:[]}],
-  ['75% A',{nm:'Valpre Capital DC Greece Ltd',j:'UK · 17290322',role:'→ FinCo · 4 Greek DCs',badge:'form',kids:[]}],
+  ['75% A',{nm:'Valpre Capital DC Greece Ltd',j:'UK · 17290322',role:'→ FinCo · 4 Greek DCs (GEMI assigned)',kids:[]}],
   ['1.3%',{nm:'Vennre Ventures Holding (VVH) Ltd',j:'UK · 13923351',role:'Vennre private-markets platform',kids:[]}],
  ]}},
 ]},
@@ -208,7 +208,7 @@ const STRUCTS=[
   ['42.5%',{nm:'EVC Energy SA',j:'Luxembourg',role:'Greek Solar PV & BESS platform',kids:[]}],
   ['10% (A & C)',{nm:'Valpre Capital Athens SA',j:'Luxembourg',role:'YOTELPAD Athens HoldCo',kids:[]}],
   ['LP',{nm:'VC PCL 1 SCSp',j:'Lux · to be formed',role:'GP: Valpre Capital GP SARL (tbf)',cls:'formx',badge:'form',kids:[]}],
-  ['3% ⚑',{nm:'Valpre Capital Pharma Limited',j:'Ireland · 665697',role:'Legacy pharma venture',badge:'exit',flag:'Chart shows 3%; earlier docs 66.66% — reconcile',banks:['AIB'],kids:[]}],
+  ['3%',{nm:'Valpre Capital Pharma Limited',j:'Ireland · 665697',role:'Legacy pharma venture',badge:'exit',flag:'3% confirmed (6 Jul 2026 chart); the 66.67% figure relates to Evolv Properties, not Pharma',banks:['AIB'],kids:[]}],
  ]}},
 ]},
 {tab:"VCDREF (Dublin)", title:"Valpre Capital Dublin Real Estate Fund", sub:"Slide 14 · certified charts Feb/Mar 2025. VCCL GP Ltd is held by Mazen & Ahmad DIRECTLY (not via VCCL). Fund LPs: VCCL 31.96% Class A · Other LPs 68.04%. All SPVs are Cayman cos holding Irish assets. Admin: Apex · Custody: Northern Trust · Lenders: AIB, CapitalFlow.", forest:[
@@ -228,80 +228,82 @@ const STRUCTS=[
 {tab:"Roc Club", title:"VC PBSA1 Limited — The Roc Club", sub:"Slide 6. 244-bed PBSA, Rockingham St SE1 · core at L5 of 24 · PC Jul 2028 · lenders OakNorth + Beaufort.", forest:[
  {sh:[['8.73% A',P('Valpre Capital UK Ltd','UK')],['1.09% A',P('CKC Properties Ltd','UK · 05739185 · ex-assoc. Smart Street Furniture')],['90.18% B',P('Investors','38 external')]],
   root:{nm:'VC PBSA1 LIMITED',j:'UK · 15466892',role:'Project TopCo — DDN & share issuer',cls:'root',banks:['Barclays','OakNorth — acq lender','Beaufort — construction'],kids:[
-   ['100%',{nm:'ROC Devco Limited',j:'UK · 15794729',role:'Development co',kids:[]}],
-   ['100%',{nm:'ROC Newco 1 Limited',j:'UK',role:'HoldCo · Alumrose member',kids:[]}],
-   ['100%',{nm:'ROC Newco 2 Limited',j:'UK',role:'HoldCo · Alumrose member',kids:[
-     ['members: Newco 1 + 2',{nm:'Alumrose LLP',j:'UK',role:'Owner of the land',kids:[]}],
+   ['100%',{nm:'ROC Devco Limited',j:'UK · 15794729',role:'Development co',kids:[
+     ['100%',{nm:'ROC Newco 1 Limited',j:'UK · 15794697',role:'HoldCo · Alumrose member',kids:[]}],
+     ['100%',{nm:'ROC Newco 2 Limited',j:'UK · 15794750',role:'HoldCo · Alumrose member',kids:[
+       ['members: Newco 1 + 2',{nm:'Alumrose LLP',j:'UK · OC438150',role:'Property-owning vehicle for the site',kids:[]}],
+     ]}],
    ]}],
  ]}},
 ]},
-{tab:"Katch JV", title:"ROC PBSA Partners Ltd — PBSA Platform JV", sub:"Slide 7 (JV chart Jul 2026). PSC: VCUK ≥75%. Pipeline deals (Glasshouse, Arlington, Union St…) execute through per-deal Project Companies.", forest:[
- {sh:[['50%',P('Valpre Capital UK Ltd','UK')],['—',P('Katch Capital Sarl','Luxembourg · Katch Investment Group')]],
-  root:{nm:'ROC PBSA PARTNERS LTD',j:'UK · 16777388',role:'PBSA JV TopCo — VCUK as Development Manager; investors via Class B',cls:'root',
-   flag:'CN 16777388 previously recorded as “31 Amelia Street Ltd” from folders; also reconcile VC PBSA 2 Ltd (16768696) & HGL Amelia Street (16856938) at Companies House',kids:[
-   ['per deal',{nm:'PBSA Company',j:'UK',role:'Deal-level HoldCo (investors Class B)',kids:[
-     ['100%',{nm:'Project Company',j:'UK',role:'PBSA development SPV',kids:[]}],
+{tab:"Katch JV", title:"ROC PBSA Partners Ltd — PBSA Platform JV", sub:"Slide 7. VCUK holds 100% Class A; Katch Investment Group / investors via Class B. VCUK acts as Development Manager. Deals execute via RPP1 Limited → JVCO LLP (to be incorporated) → Almira Property Limited (property-owning). Class B percentages per deal.", forest:[
+ {sh:[['100% Class A',P('Valpre Capital UK Ltd','UK · 11872154')],['Class B',P('Katch Capital Sarl','Luxembourg · Katch Investment Group / investors')]],
+  root:{nm:'ROC PBSA PARTNERS LTD',j:'UK · 16777388',role:'PBSA JV TopCo — VCUK Development Manager; investors subscribe Class B',cls:'root',kids:[
+   ['Class A · Class B',{nm:'RPP1 Limited',j:'UK · 16768696',role:'Deal-level HoldCo (CN 16768696, formerly recorded as VC PBSA 2 Ltd)',flag:'Class B tranche splits per deal — verify',kids:[
+     ['80% · 20%',{nm:'JVCO LLP',j:'UK · to be incorporated',role:'JV partnership vehicle',cls:'formx',badge:'form',kids:[
+       ['100% Class A',{nm:'ALMIRA PROPERTY LIMITED',j:'UK · 14599161',role:'PBSA development — property-owning vehicle (land)',kids:[]}],
+     ]}],
    ]}],
  ]}},
 ]},
 {tab:"DC Greece", title:"Valpre Capital DC Greece — Greek Data Centres", sub:"Slide 8 · per VC Infrastructure Greece chart (9 Jun 2026). Both UK cos incorporated Jun 2026 at the group address.", forest:[
  {sh:[['75% A',P('Valpre Capital UK Ltd','UK')],['25% B',P('Non-UK Resident Investors','Class B')]],
-  root:{nm:'VALPRE CAPITAL DC GREECE LTD',j:'UK · 17290322',role:'UK HoldCo',cls:'root',badge:'form',kids:[
+  root:{nm:'VALPRE CAPITAL DC GREECE LTD',j:'UK · 17290322',role:'UK HoldCo',cls:'root',kids:[
    ['100%',{nm:'VALPRE CAPITAL DC GREECE FINCO LTD',j:'UK · 17296060',role:'UK FinCo',kids:[
-    ['70%',{nm:'Atalanti DC',j:'Greece',role:'Data centre project · 30% third-party local contractors',kids:[]}],
-    ['70%',{nm:'Agios DC',j:'Greece',role:'Data centre project (Agios Antonios — RES-paired)',kids:[]}],
-    ['70%',{nm:'Ptolemais DC',j:'Greece',role:'Data centre project',kids:[]}],
-    ['70%',{nm:'Thessaloniki DC',j:'Greece',role:'Data centre project',kids:[]}],
+    ['70%',{nm:'Atalanti DC IKE',j:'Greece · GEMI 192958601000',role:'Data centre project · 30% third-party local contractors',kids:[]}],
+    ['70%',{nm:'Agios Antonios DC IKE',j:'Greece · GEMI 192947701000',role:'Data centre project (Agios Antonios — RES-paired)',kids:[]}],
+    ['70%',{nm:'Ptolemaida DC IKE',j:'Greece · GEMI 194041201000',role:'Data centre project',kids:[]}],
+    ['70%',{nm:'Thessaloniki DC IKE',j:'Greece · GEMI 194654001000',role:'Data centre project',kids:[]}],
    ]}],
  ]}},
 ]},
-{tab:"Athens", title:"Valpre Capital Athens SA — YOTELPAD Athens", sub:"Slide 13 (Mar 2026 chart · ΓΕΜΗ data). LeaseCos wholly owned by their PropCos under 12-year leases; Yotel HMAs at PropCo level; OpCo centralises costs.", forest:[
+{tab:"Athens", title:"Valpre Capital Athens SA — YOTELPAD Athens", sub:"Slide 13 (6 Jul 2026 · ΓΕΜΗ data). VC Athens SA — RCS B290515. All PropCos, LeaseCos & OpCo GEMI numbers now recorded. LeaseCos wholly owned by their PropCos under 12-year leases; Yotel HMAs at PropCo level; OpCo centralises costs.", forest:[
  {sh:[['10% (A & C)',P('Valpre Capital Investments SARL','Luxembourg')],['90% (B)',P('Investors','Class B shareholders')]],
-  root:{nm:'VALPRE CAPITAL ATHENS SA',j:'Luxembourg',role:'Lux HoldCo',cls:'root',kids:[
+  root:{nm:'VALPRE CAPITAL ATHENS SA',j:'Luxembourg · RCS B290515',role:'Lux HoldCo',cls:'root',kids:[
    ['100%',{nm:'VC GREA Properties 1 S.M.S.A. (VCGP1)',j:'Greece · ΓΕΜΗ 147648501000',role:'PropCo — EPIKOUROU (ex-Zoia 28) · Yotel HMA',banks:['Attica/CrediaBank — financing'],kids:[
-    ['100%',{nm:'VCGP Epikourou 1 S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'LeaseCo — 12-yr lease',kids:[]}],
-    ['100%',{nm:'VCGP Epikourou 2 S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'LeaseCo',kids:[]}],
+    ['100%',{nm:'VCGP Epikourou 1 S.M.P.C.',j:'Greece · ΓΕΜΗ 188130101000',role:'LeaseCo — 12-yr lease',kids:[]}],
+    ['100%',{nm:'VCGP Epikourou 2 S.M.P.C.',j:'Greece · ΓΕΜΗ 188129701000',role:'LeaseCo',kids:[]}],
    ]}],
    ['100%',{nm:'VC GREA Properties 2 S.M.S.A. (VCGP2)',j:'Greece · ΓΕΜΗ 161418001000',role:'PropCo — MILTIADOU (ex-Zoia 49)',kids:[
-    ['100%',{nm:'VCGP Miltiadou S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'LeaseCo',kids:[]}],
+    ['100%',{nm:'VCGP Miltiadou S.M.P.C.',j:'Greece · ΓΕΜΗ 188128901000',role:'LeaseCo',kids:[]}],
    ]}],
-   ['100%',{nm:'GREA Holdings 2 S.A. (→ VCGP3)',j:'Greece · ΓΕΜΗ TBC',role:'PropCo — IRAS (open, trading)',flag:'ΓΕΜΗ record & rename to confirm',banks:['CrediaBank — Iras financing'],kids:[]}],
-   ['100%',{nm:'VCGP OpCo S.M.P.C.',j:'Greece · ΓΕΜΗ TBC',role:'OpCo — staff & cost centralisation',banks:['Credia Bank — e-banking'],kids:[]}],
+   ['100%',{nm:'VC GREA Properties 3 S.M.S.A. (VCGP3)',j:'Greece · ΓΕΜΗ 165009001000',role:'PropCo — IRAS (open, trading)',banks:['CrediaBank — Iras financing'],kids:[]}],
+   ['100%',{nm:'VCGP OpCo S.M.P.C.',j:'Greece · ΓΕΜΗ 178511401000',role:'OpCo — staff & cost centralisation',banks:['Credia Bank — e-banking'],kids:[]}],
  ]}},
 ]},
-{tab:"Yeomans (PCL1)", title:"VC PCL1 Limited — Yeoman Square, Knightsbridge", sub:"Slide 5. 60 Walton St SW3 · lender Unbranded Finance 2 LLP (acq ~£11m + dev ~£31m). SCSp & GP SARL to be formed; SCSp pools investors as LP structure (LP: VCI).", forest:[
+{tab:"Yeomans (PCL1)", title:"VC PCL1 Limited — Yeoman Square, Knightsbridge", sub:"Slide 5. 60 Walton St SW3 · lender Unbranded Capital (acq + dev facilities). SCSp & GP SARL to be formed; SCSp pools investors as an LP structure (LP: VCI), notes issued under Lux Securitisation Law.", forest:[
  {sh:[['A 7,925 · C 75',P('Valpre Capital UK Ltd','UK · CN 11872154')],['A 1,975 · C 25',P('Phi London Limited','UK · 09825174')],['Class B + DDNs',P('Third-Party Investors','external')]],
-  root:{nm:'VC PCL1 LIMITED',j:'UK · 15182560',role:'Project TopCo',cls:'root',banks:['Barclays','Unbranded Finance 2 LLP — facilities'],kids:[
-   ['100%',{nm:'YSK IntermediateCo Limited',j:'UK',role:'Borrower co — will incorporate 14–20 unit SPVs (air leases)',kids:[
-    ['100%',{nm:'YSK FreeholdCo Limited',j:'UK · 17116674',role:'Freehold PropCo — 60 Walton Street',kids:[]}],
-    ['planned',{nm:'Unit SPVs × 14–20',j:'UK · to be formed',role:'Per-unit air-lease SPVs',cls:'formx',badge:'form',kids:[]}],
+  root:{nm:'VC PCL1 LIMITED',j:'UK · 15182560',role:'Project TopCo',cls:'root',banks:['Barclays','Unbranded Capital — acq + dev facilities'],kids:[
+   ['100%',{nm:'YSK IntermediateCo Limited',j:'UK · 17083407',role:'Borrower co — inc. 10 Mar 2026, renamed from YSK FreeholdCo Ltd; draws Unbranded facilities',kids:[
+    ['100%',{nm:'YSK FreeholdCo Limited',j:'UK · to be formed',role:'New FreeholdCo — legal ownership of the land (60 Walton St)',cls:'formx',badge:'form',kids:[]}],
    ]}],
  ]}},
  {sh:[['GP',P('Valpre Capital GP SARL','Lux · to be formed')],['LP',P('Valpre Capital Investments SARL','Luxembourg')]],
-  root:{nm:'VC PCL 1 SCSp',j:'Luxembourg · to be formed',role:'Investor pooling partnership feeding VC PCL1',cls:'formx',badge:'form',kids:[]}},
+  root:{nm:'VC PCL 1 SCSp',j:'Luxembourg · to be formed',role:'Investor pooling partnership feeding VC PCL1 · notes under Lux Securitisation Law',cls:'formx',badge:'form',kids:[]}},
 ]},
 {tab:"TKY (Mayfair)", title:"VC TKY Limited — Three Kings Yard", sub:"Slide 4. Completed Mar 2025; 4 of 8 units sold £26.2m; DDNs due Mar 2027.", forest:[
  {sh:[['12.5% (A 64.28%)',P('Valpre Capital UK Ltd','UK — 64.3% vote')],['7.7% (A 35.72%)',P('Investors — Class A','external')],['79.8% (B)',P('Investors — Class B','external')]],
   root:{nm:'VC TKY LIMITED',j:'UK · 13716369',role:'Investment vehicle',cls:'root',banks:['Barclays — project account'],kids:[
-   ['74.23% A · 33.33% B',{nm:'3KY MAYFAIR LIMITED',j:'UK · 13856460',role:'Asset co — 8 apartments + members club',banks:['Close Brothers — senior (£6.4m rem.)'],kids:[]}],
+   ['74.23% A · 33.33% B',{nm:'3KY MAYFAIR LIMITED',j:'UK · 13856460',role:'Asset co — 8 apartments + members club. Other holders: 3KY Ltd 10.31% A / 3.00% B · 1.61 London Developments Ltd 4.12% A / 31.83% B · Brasted Investments Ltd 11.34% A / 31.83% B',banks:['Close Brothers — senior (£6.4m rem.)'],kids:[]}],
  ]}},
  {sh:[], root:{nm:'TKY LendCo Limited',j:'Cayman Islands',role:'DDN funding vehicle · also 24.9% of EVC Kilt',cls:'root',kids:[]}},
 ]},
-{tab:"EVC Energy SA", title:"EVC Energy SA — Greek Solar PV & BESS", sub:"Slide 12. Total pipeline 1,449.5 MW (PV 722 · BESS 727.5). ⚑ Chart face 42.5/42.5/15 vs 1-Jun-26 note 49.75/49.75/0.5 — reconcile. Elmya Holdco (Spain): Pinar family/Pice 44.47% · Clove Capital 22.63%.", forest:[
+{tab:"EVC Energy SA", title:"EVC Energy SA — Greek Solar PV & BESS", sub:"Slide 12 (6 Jul 2026). EVC Energy SA — RCS B263192. Total pipeline 1,449.5 MW (PV 722 · BESS 727.5) across 6 Greek SPVs. ⚑ Chart face 42.5/42.5/15 vs 1-Jun-26 note 49.75/49.75/0.5 — reconcile. ⚑ Deck shows Elmya Greece 4 & 5 with the same GEMI 160388301000 — verify. Elmya Holdco (Spain): Pinar family/Pice 44.47% · Clove Capital 22.63%.", forest:[
  {sh:[['42.5%',P('Valpre Capital Investments SARL','Luxembourg')],['42.5%',P('Elmya Energy SL','Spain · Elmya Holdco group')],['15%',P('Starinia Investments Ltd','Cyprus · via Osiris Trustees (BVI) — Calypso Trust')]],
-  root:{nm:'EVC ENERGY SA',j:'Luxembourg',role:'Solar PV / BESS HoldCo',cls:'root',flag:'Shareholding split discrepancy — see subtitle',kids:[
-   ['71.3%',{nm:'ES Energy 2 — Agios Antonios',j:'Greece',role:'PV 217 MW + BESS 195 MW (DC flagship)',kids:[]}],
-   ['72.4%',{nm:'Staat Vast II — Ptolemais',j:'Greece',role:'PV 150 MW + BESS 150 MW · fully permitted',kids:[]}],
-   ['70.4%',{nm:'Elmya Greece 2 — Livadea',j:'Greece',role:'PV 50 MW + BESS 50 MW',kids:[]}],
-   ['70.0%',{nm:'Elmya Greece 4 — Kyrtoni',j:'Greece',role:'PV 55 MW + BESS 50 MW',kids:[]}],
-   ['70.0%',{nm:'Elmya Greece 5 — Zarko / Yangova / Pieria',j:'Greece',role:'PV 250 MW + BESS 282.5 MW across 3 sites',kids:[]}],
+  root:{nm:'EVC ENERGY SA',j:'Luxembourg · RCS B263192',role:'Solar PV / BESS HoldCo',cls:'root',flag:'Shareholding split discrepancy — see subtitle',kids:[
+   ['71.3%',{nm:'ES Energy 2 IKE — Agios Antonios',j:'Greece · GEMI 150057754000',role:'PV 217 MW + BESS 195 MW (DC flagship)',kids:[]}],
+   ['72.4%',{nm:'Staat Vast II IKE — Ptolemais',j:'Greece · GEMI 156217601000',role:'PV 150 MW + BESS 150 MW · fully permitted',kids:[]}],
+   ['70.4%',{nm:'Elmya Greece 2 IKE — Livadea',j:'Greece · GEMI 157475301000',role:'PV 50 MW + BESS 50 MW',kids:[]}],
+   ['70.33%',{nm:'Elmya Greece 3 IKE',j:'Greece · GEMI 157478001000',role:'Solar PV / BESS SPV (capacity TBC)',kids:[]}],
+   ['70.0%',{nm:'Elmya Greece 4 IKE — Kyrtoni',j:'Greece · GEMI 160388301000',role:'PV 55 MW + BESS 50 MW',kids:[]}],
+   ['70.0%',{nm:'Elmya Greece 5 — Zarko / Yangova / Pieria',j:'Greece · GEMI 160388301000 ⚑',role:'PV 250 MW + BESS 282.5 MW across 3 sites',kids:[]}],
  ]}},
 ]},
 {tab:"EVC Kilt", title:"EVC Kilt Limited — UK Energy Centres", sub:"Slide 9. Two energy centres (Kilt solar portfolio exited to Sonnedix 2025).", forest:[
  {sh:[['42.5%',P('Elmya Energy UK Ltd','UK · 13809258')],['24.9%',P('TKY LendCo Limited','Cayman Islands')],['17.6%',P('Valpre Capital UK Ltd','UK')],['15%',P('Zalana Investment Holdings','BVI')]],
   root:{nm:'EVC KILT LIMITED',j:'UK · 13949208',role:'Energy development co',cls:'root',banks:['Barclays'],kids:[
    ['100%',{nm:'Strathruddie Energy Centre Ltd',j:'UK · 13026486',role:'Energy centre SPV',kids:[]}],
-   ['100%',{nm:'IQ Energy Centre Ltd',j:'UK',role:'Energy centre SPV',kids:[]}],
+   ['100%',{nm:'IQ Energy Centre Ltd',j:'UK · 11678461',role:'Energy centre SPV',kids:[]}],
  ]}},
 ]},
 {tab:"NREK1 (sold)", title:"NREK1 Limited — 10 Newmarket Square", sub:"Slide 11. 134-unit BTR, Dublin 8 — SOLD to MEAG Jan 2026 at 24% net IRR / 1.5x.", forest:[
@@ -482,7 +484,7 @@ function openPanel(n, structTitle){
    <dl><dt>Jurisdiction / registration</dt><dd>${n.j}</dd>
    <dt>Role</dt><dd>${n.role||'—'}</dd>
    <dt>Banking / lenders</dt>${banks}
-   <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">Group Structure — Detailed Entity Charts, 30 Jun 2026</dd></dl>
+   <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">Group Structure — Detailed Entity Charts, 6 Jul 2026</dd></dl>
    ${n.flag?`<div class="flagbox">⚑ ${n.flag}</div>`:''}`;
   document.getElementById('panel').classList.add('open');
 }

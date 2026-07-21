@@ -19,6 +19,8 @@
   header h1 span{color:var(--blue2); font-weight:500;}
   #search{background:var(--bg2); border:1px solid var(--steel); color:var(--navy); border-radius:8px; padding:6px 12px; width:220px; font-size:13px;}
   #search:focus{outline:2px solid var(--blue);}
+  #resetBtn{background:var(--bg2); border:1px solid var(--steel); color:var(--blue2); border-radius:8px; padding:6px 11px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;}
+  #resetBtn:hover{background:var(--navy); color:#fff; border-color:var(--navy);}
   .hint{font-size:11px; color:var(--grey2); margin-left:auto; white-space:nowrap;}
   #tabs{position:fixed; top:47px; left:0; right:0; z-index:49; display:flex; gap:4px; padding:8px 14px; overflow-x:auto;
     background:rgba(255,255,255,.96); border-bottom:1px solid var(--steel);}
@@ -32,8 +34,9 @@
   #chart{position:relative;}
   #wires{position:absolute; top:0; left:0; pointer-events:none; overflow:visible;}
   .nd{position:absolute; width:190px; background:var(--card); border:1.5px solid var(--blue2); border-radius:8px;
-    padding:7px 9px; cursor:pointer; box-shadow:0 2px 6px rgba(15,39,93,.10); transition:box-shadow .1s;}
+    padding:7px 9px; cursor:grab; box-shadow:0 2px 6px rgba(15,39,93,.10); transition:box-shadow .1s;}
   .nd:hover{box-shadow:0 4px 12px rgba(15,39,93,.25);}
+  .nd.dragging{cursor:grabbing; z-index:40; box-shadow:0 8px 22px rgba(15,39,93,.35); outline:2px solid var(--blue);}
   .nd.hl{outline:3px solid #E8B13F;}
   .nd .nm{font-size:11.5px; font-weight:700; color:var(--navy); line-height:1.3;}
   .nd .meta{font-size:9.5px; color:var(--grey); margin-top:2px; line-height:1.35;}
@@ -71,17 +74,18 @@
 <header>
   <h1>VALPRE CAPITAL <span>— Group Structure Charts v5</span></h1>
   <input id="search" type="text" placeholder="Search entity, %, bank, CN…">
-  <span class="hint">drag to pan · scroll to zoom · click a box for detail</span>
+  <button id="resetBtn" title="Restore original layout for this tab">⟳ Reset layout</button>
+  <span class="hint">drag a box to reposition · drag background to pan · scroll to zoom · click a box for detail</span>
 </header>
 <div id="tabs"></div>
 <div id="viewport"><div id="canvas"><div id="chart"><svg id="wires"></svg></div></div></div>
 <aside id="panel"><button class="close" onclick="closePanel()">✕</button><div id="panelBody"></div></aside>
 <footer>v5 — reconciled to “Group Structure — Detailed Entity Charts” dated 6 Jul 2026. Ownership % on connectors as charted. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
-
+ 
 <script>
 // node: {nm, j, role, cls(person/root/plain), badge, flag, banks, note, kids:[[pct, node]]}
 const P=(nm,j,note)=>({nm,j,role:note||'Individual',cls:'person',kids:[]});
-
+ 
 // ============ COMBINED NETWORK (single sheet) ============
 // kinds: own = ownership (blue) · ubo = holding chain (navy) · x = cross-project link (amber dashed)
 const CN=(id,nm,j,x,y,role,opt)=>Object.assign({id,nm,j,x,y,role},opt||{});
@@ -179,7 +183,7 @@ const COMBINED={
   {f:'lendco',t:'3ky',label:'funds 3KY DDNs',kind:'x'},
  ]
 };
-
+ 
 const STRUCTS=[
 {tab:"Group & UBO", title:"Holding Companies — Shareholders & UBO", sub:"Slide 2. UBO chain right: Muhannad Hariri → MDOA (Cayman) → SCP MDOA (Monaco, 99.9% + 0.1% direct).", forest:[
  {sh:[[ '25%',P('Mohamed Ali Beyhum','—')],['25%',P('Rami Aslan','—')],['25%',P('Mazen AbouChakra','—')],['25%',P('Ahmad Hariri','—')]],
@@ -274,7 +278,7 @@ const STRUCTS=[
 {tab:"Yeomans (PCL1)", title:"VC PCL1 Limited — Yeoman Square, Knightsbridge", sub:"Slide 5. 60 Walton St SW3 · lender Unbranded Capital (acq + dev facilities). SCSp & GP SARL to be formed; SCSp pools investors as an LP structure (LP: VCI), notes issued under Lux Securitisation Law.", forest:[
  {sh:[['A 7,925 · C 75',P('Valpre Capital UK Ltd','UK · CN 11872154')],['A 1,975 · C 25',P('Phi London Limited','UK · 09825174')],['Class B + DDNs',P('Third-Party Investors','external')]],
   root:{nm:'VC PCL1 LIMITED',j:'UK · 15182560',role:'Project TopCo',cls:'root',banks:['Barclays','Unbranded Capital — acq + dev facilities'],kids:[
-   ['100%',{nm:'YSK IntermediateCo Limited',j:'UK · 17083407',role:'Borrower co — inc. 10 Mar 2026, renamed from YSK FreeholdCo Ltd; draws Unbranded facilities',kids:[
+   ['100%',{nm:'YSK IntermediateCo Limited',j:'UK · 17083407',role:'Borrower co — inc. 10 Mar 2026, renamed from YSK FreeholdCo Ltd; draws Unbranded facilities; to incorporate 14–20 per-unit air-lease SPVs',kids:[
     ['100%',{nm:'YSK FreeholdCo Limited',j:'UK · to be formed',role:'New FreeholdCo — legal ownership of the land (60 Walton St)',cls:'formx',badge:'form',kids:[]}],
    ]}],
  ]}},
@@ -321,12 +325,12 @@ const STRUCTS=[
   root:{nm:'Evolv Properties Limited',j:'Ireland · CRO 638733',role:'Voluntary strike-off effective 4 Nov 2024',cls:'root',badge:'diss',kids:[]}},
 ]},
 ];
-
+ 
 // ---------- layout engine ----------
 const NW=190, HGAP=26, VGAP=86, SHGAP=30, FOREST_GAP=90, TOP=70;
 const badgeMap={live:['b-live','ACTIVE'],sold:['b-sold','SOLD'],form:['b-form','IN FORMATION'],diss:['b-diss','DISSOLVED'],exit:['b-exit','LEGACY']};
-let nodesFlat=[], edges=[];
-
+let nodesFlat=[], edges=[], curEdges=[], allNodes=[], curTitle='';
+ 
 function measure(n){ // subtree width
   if(!n.kids || !n.kids.length){ n._w = NW; return NW; }
   let w = 0;
@@ -340,7 +344,7 @@ function place(n, x, y){ // x = left edge of subtree
     let cx = x + (n._w - n.kids.reduce((a,[p,k],i)=>a+k._w+(i?HGAP:0),0))/2;
     n.kids.forEach(([p,k])=>{
       place(k, cx, y + nodeH(n) + VGAP);
-      edges.push({x1:n._x+NW/2, y1:n._y+nodeH(n), x2:k._x+NW/2, y2:k._y, label:p});
+      curEdges.push({a:n, b:k, label:p, kind:'own'});
       cx += k._w + HGAP;
     });
   }
@@ -351,65 +355,100 @@ function nodeH(n){ // estimate height
   if(n.flag) h += Math.ceil(n.flag.length/36)*11;
   return Math.max(52, h);
 }
+// ---------- shared connector geometry + live redraw ----------
+function edgeEndpoints(a,b){
+  const ah=a._h||52, bh=b._h||52;
+  const ax=a._x+NW/2, bx=b._x+NW/2;
+  let x1,y1,x2,y2;
+  if(a._y+ah <= b._y){ x1=ax; y1=a._y+ah; x2=bx; y2=b._y; }        // a above b
+  else if(b._y+bh <= a._y){ x1=ax; y1=a._y; x2=bx; y2=b._y+bh; }   // a below b
+  else { // side-to-side
+    if(ax<bx){ x1=a._x+NW; y1=a._y+ah/2; x2=b._x; y2=b._y+bh/2; }
+    else { x1=a._x; y1=a._y+ah/2; x2=b._x+NW; y2=b._y+bh/2; }
+  }
+  return {x1,y1,x2,y2};
+}
+function redrawWires(){
+  const chart=document.getElementById('chart');
+  const svg=document.getElementById('wires');
+  chart.querySelectorAll('.pct').forEach(e=>e.remove());
+  let maxX=0,maxY=0;
+  allNodes.forEach(n=>{ if(n._el) n._h=n._el.offsetHeight; maxX=Math.max(maxX,n._x+NW); maxY=Math.max(maxY,n._y+(n._h||52)); });
+  svg.setAttribute('width',maxX+140); svg.setAttribute('height',maxY+140);
+  chart.style.width=(maxX+140)+'px'; chart.style.height=(maxY+140)+'px';
+  let paths='';
+  curEdges.forEach(e=>{
+    const a=e.a, b=e.b; if(!a||!b) return;
+    const {x1,y1,x2,y2}=edgeEndpoints(a,b);
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    const style = e.kind==='x' ? 'stroke="#E8A33D" stroke-width="2.4" stroke-dasharray="7 5"'
+                : e.kind==='ubo' ? 'stroke="#1F3768" stroke-width="1.4"'
+                : 'stroke="#6D94AD" stroke-width="1.5"';
+    paths+=`<path d="M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}" fill="none" ${style}/>`;
+    if(e.label){
+      const l=document.createElement('div'); l.className='pct';
+      if(e.kind==='x'){ l.style.color='#A66A0F'; l.style.border='1px solid #E8A33D'; }
+      l.style.left=mx+'px'; l.style.top=my+'px'; l.textContent=e.label;
+      chart.appendChild(l);
+    }
+  });
+  svg.innerHTML=paths;
+}
+// ---------- per-node drag (click still opens panel) ----------
+function attachNodeDrag(d,n){
+  d.addEventListener('mousedown',ev=>{
+    ev.stopPropagation(); ev.preventDefault();
+    const sx=ev.clientX, sy=ev.clientY, nx=n._x, ny=n._y; let moved=false;
+    d.classList.add('dragging');
+    function mm(e){
+      const dx=(e.clientX-sx)/scale, dy=(e.clientY-sy)/scale;
+      if(Math.abs(dx)>3||Math.abs(dy)>3) moved=true;
+      n._x=nx+dx; n._y=ny+dy; d.style.left=n._x+'px'; d.style.top=n._y+'px';
+      redrawWires();
+    }
+    function mu(){
+      window.removeEventListener('mousemove',mm); window.removeEventListener('mouseup',mu);
+      d.classList.remove('dragging');
+      if(!moved) openPanel(n, curTitle);
+    }
+    window.addEventListener('mousemove',mm); window.addEventListener('mouseup',mu);
+  });
+}
+function makeNodeEl(n, shortBanks){
+  const d=document.createElement('div');
+  d.className='nd '+(n.cls||''); d.style.left=n._x+'px'; d.style.top=n._y+'px';
+  const badge=n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:'';
+  const bankList = n.banks&&n.banks.length ? (shortBanks? n.banks.map(b=>b.split(' — ')[0]) : n.banks) : null;
+  const banks=bankList?`<div class="bk">🏦 ${bankList.join(' · ')}</div>`:'';
+  const flag=n.flag?`<div class="fl">⚑ ${n.flag}</div>`:'';
+  d.innerHTML=`<div class="nm">${n.nm}${badge}</div><div class="meta">${n.j}${n.role?' · '+n.role:''}</div>${banks}${flag}`;
+  d.dataset.hay=(n.nm+' '+n.j+' '+(n.role||'')+' '+(n.banks||[]).join(' ')).toLowerCase();
+  attachNodeDrag(d,n);
+  return d;
+}
 function renderCombined(){
-  nodesFlat=[]; edges=[];
+  nodesFlat=[]; edges=[]; curEdges=[]; curTitle=COMBINED.title;
   const chart = document.getElementById('chart');
   chart.querySelectorAll('.nd,.pct,.chart-title,.chart-sub').forEach(e=>e.remove());
   const t=document.createElement('div'); t.className='chart-title'; t.style.left='20px'; t.style.top='14px'; t.textContent=COMBINED.title; chart.appendChild(t);
   const sb=document.createElement('div'); sb.className='chart-sub'; sb.style.left='20px'; sb.style.top='34px'; sb.style.maxWidth='900px'; sb.textContent=COMBINED.sub; chart.appendChild(sb);
   const byId={};
   COMBINED.nodes.forEach(n=>{
-    byId[n.id]=n; n._x=n.x; n._y=n.y+70;
-    const d=document.createElement('div');
-    d.className='nd '+(n.cls||''); d.style.left=n._x+'px'; d.style.top=n._y+'px';
-    const badge=n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:'';
-    const banks=n.banks&&n.banks.length?`<div class="bk">🏦 ${n.banks.join(' · ')}</div>`:'';
-    const flag=n.flag?`<div class="fl">⚑ ${n.flag}</div>`:'';
-    d.innerHTML=`<div class="nm">${n.nm}${badge}</div><div class="meta">${n.j}${n.role?' · '+n.role:''}</div>${banks}${flag}`;
-    d.addEventListener('click',e=>{e.stopPropagation(); openPanel(n, COMBINED.title);});
-    d.dataset.hay=(n.nm+' '+n.j+' '+(n.role||'')+' '+(n.banks||[]).join(' ')).toLowerCase();
+    byId[n.id]=n; n._x=n.x; n._y=n.y+70; n._w=NW;
+    const d=makeNodeEl(n,false);
     chart.appendChild(d); n._el=d;
   });
-  requestAnimationFrame(()=>{
-    const svg=document.getElementById('wires');
-    let maxX=0,maxY=0;
-    COMBINED.nodes.forEach(n=>{n._h=n._el.offsetHeight; maxX=Math.max(maxX,n._x+NW); maxY=Math.max(maxY,n._y+n._h);});
-    svg.setAttribute('width',maxX+120); svg.setAttribute('height',maxY+120);
-    chart.style.width=(maxX+120)+'px'; chart.style.height=(maxY+120)+'px';
-    chart.querySelectorAll('.pct').forEach(e=>e.remove());
-    let paths='';
-    COMBINED.edges.forEach(e=>{
-      const a=byId[e.f], b=byId[e.t]; if(!a||!b) return;
-      const ax=a._x+NW/2, bx=b._x+NW/2;
-      let x1,y1,x2,y2;
-      if(a._y+a._h <= b._y){ x1=ax; y1=a._y+a._h; x2=bx; y2=b._y; }        // downward
-      else if(b._y+b._h <= a._y){ x1=ax; y1=a._y; x2=bx; y2=b._y+b._h; }   // upward
-      else { // side-to-side
-        if(ax<bx){ x1=a._x+NW; y1=a._y+a._h/2; x2=b._x; y2=b._y+b._h/2; }
-        else { x1=a._x; y1=a._y+a._h/2; x2=b._x+NW; y2=b._y+b._h/2; }
-      }
-      const mx=(x1+x2)/2, my=(y1+y2)/2;
-      const style = e.kind==='x' ? 'stroke="#E8A33D" stroke-width="2.4" stroke-dasharray="7 5"'
-                  : e.kind==='ubo' ? 'stroke="#1F3768" stroke-width="1.4"'
-                  : 'stroke="#6D94AD" stroke-width="1.5"';
-      paths+=`<path d="M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}" fill="none" ${style}/>`;
-      if(e.label){
-        const l=document.createElement('div'); l.className='pct';
-        if(e.kind==='x'){ l.style.color='#A66A0F'; l.style.border='1px solid #E8A33D'; }
-        l.style.left=mx+'px'; l.style.top=my+'px'; l.textContent=e.label;
-        chart.appendChild(l);
-      }
-    });
-    svg.innerHTML=paths;
-  });
+  COMBINED.edges.forEach(e=>{ const a=byId[e.f], b=byId[e.t]; if(a&&b) curEdges.push({a,b,label:e.label,kind:e.kind}); });
+  allNodes=COMBINED.nodes;
+  requestAnimationFrame(redrawWires);
 }
 function renderStruct(si){
   if(si===-1){ renderCombined(); return; }
   const st = STRUCTS[si];
-  nodesFlat=[]; edges=[];
+  nodesFlat=[]; edges=[]; curEdges=[]; curTitle=st.title;
   const chart = document.getElementById('chart');
   chart.querySelectorAll('.nd,.pct,.chart-title,.chart-sub').forEach(e=>e.remove());
-  let fx = 20, maxBottom = 0;
+  let fx = 20;
   st.forest.forEach(f=>{
     // shareholders row
     const shs = f.sh || [];
@@ -427,54 +466,23 @@ function renderStruct(si){
     });
     // place tree
     place(f.root, fx + (treeW - f.root._w)/2, rootY);
-    // shareholder edges
+    // shareholder edges (node references so they follow drags)
     shs.forEach(([p,person])=>{
-      edges.push({x1:person._x+NW/2, y1:person._y+46, x2:f.root._x+NW/2, y2:f.root._y, label:p});
+      curEdges.push({a:person, b:f.root, label:p, kind:'own'});
     });
-    // track extents
-    nodesFlat.forEach(n=>{ maxBottom = Math.max(maxBottom, (n._y||0)+nodeH(n)); });
     fx += treeW + FOREST_GAP;
   });
   // title
   const t = document.createElement('div'); t.className='chart-title'; t.style.left='20px'; t.style.top='14px'; t.textContent = st.title; chart.appendChild(t);
   const sb = document.createElement('div'); sb.className='chart-sub'; sb.style.left='20px'; sb.style.top='34px'; sb.textContent = st.sub; chart.appendChild(sb);
   // nodes
-  nodesFlat.forEach((n,i)=>{
-    const d = document.createElement('div');
-    d.className = 'nd ' + (n.cls||'');
-    d.style.left = n._x+'px'; d.style.top = n._y+'px';
-    const badge = n.badge?`<span class="badge ${badgeMap[n.badge][0]}">${badgeMap[n.badge][1]}</span>`:'';
-    const banks = n.banks&&n.banks.length?`<div class="bk">🏦 ${n.banks.map(b=>b.split(' — ')[0]).join(' · ')}</div>`:'';
-    const flag = n.flag?`<div class="fl">⚑ ${n.flag}</div>`:'';
-    d.innerHTML = `<div class="nm">${n.nm}${badge}</div><div class="meta">${n.j}${n.role?' · '+n.role:''}</div>${banks}${flag}`;
-    d.addEventListener('click', e=>{e.stopPropagation(); openPanel(n, st.title);});
-    d.dataset.hay = (n.nm+' '+n.j+' '+(n.role||'')+' '+(n.banks||[]).join(' ')).toLowerCase();
+  nodesFlat.forEach(n=>{
+    const d = makeNodeEl(n, true);
     chart.appendChild(d);
     n._el = d;
   });
-  // measure real heights, redraw edges from actual boxes
-  requestAnimationFrame(()=>{
-    const svg = document.getElementById('wires');
-    let maxX=0, maxY=0;
-    nodesFlat.forEach(n=>{ n._h = n._el.offsetHeight; maxX=Math.max(maxX,n._x+NW); maxY=Math.max(maxY,n._y+n._h); });
-    svg.setAttribute('width', maxX+80); svg.setAttribute('height', maxY+80);
-    document.getElementById('chart').style.width=(maxX+80)+'px';
-    document.getElementById('chart').style.height=(maxY+80)+'px';
-    let paths='';
-    chart.querySelectorAll('.pct').forEach(e=>e.remove());
-    edges.forEach(e=>{
-      const srcN = nodesFlat.find(n=>Math.abs(n._x+NW/2-e.x1)<1 && Math.abs(n._y-e.y1)<200 && n._y<e.y2);
-      const y1 = srcN? srcN._y + srcN._h : e.y1;
-      const midY = (y1 + e.y2)/2;
-      paths += `<path d="M ${e.x1} ${y1} L ${e.x1} ${midY} L ${e.x2} ${midY} L ${e.x2} ${e.y2}" fill="none" stroke="#6D94AD" stroke-width="1.5"/>`;
-      if(e.label){
-        const l = document.createElement('div'); l.className='pct';
-        l.style.left = e.x2+'px'; l.style.top = (e.y2-12)+'px'; l.textContent = e.label;
-        chart.appendChild(l);
-      }
-    });
-    svg.innerHTML = paths + '<defs></defs>';
-  });
+  allNodes = nodesFlat;
+  requestAnimationFrame(redrawWires);
 }
 // ---------- panel ----------
 function openPanel(n, structTitle){
@@ -519,7 +527,9 @@ document.getElementById('search').addEventListener('input',e=>{
     document.querySelectorAll('.nd').forEach(el=>{ el.classList.toggle('hl', q.length>1 && el.dataset.hay.includes(q)); });
   }, 50);
 });
+document.getElementById('resetBtn').addEventListener('click',()=>{ renderStruct(current); resetView(); });
 renderStruct(-1); apply();
 </script>
 </body>
 </html>
+ 

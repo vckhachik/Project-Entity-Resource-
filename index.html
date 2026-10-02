@@ -72,7 +72,7 @@
 </head>
 <body>
 <header>
-  <h1>VALPRE CAPITAL <span>— Group Structure Charts v5</span></h1>
+  <h1>VALPRE CAPITAL <span>— Group Structure Charts v6</span></h1>
   <input id="search" type="text" placeholder="Search entity, %, bank, CN…">
   <button id="resetBtn" title="Restore original layout for this tab">⟳ Reset layout</button>
   <span class="hint">drag a box to reposition · drag background to pan · scroll to zoom · click a box for detail</span>
@@ -80,18 +80,18 @@
 <div id="tabs"></div>
 <div id="viewport"><div id="canvas"><div id="chart"><svg id="wires"></svg></div></div></div>
 <aside id="panel"><button class="close" onclick="closePanel()">✕</button><div id="panelBody"></div></aside>
-<footer>v5 — reconciled to “Group Structure — Detailed Entity Charts” dated 6 Jul 2026. Ownership % on connectors as charted. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
- 
+<footer>v6 — group structure reconciled to “Valpre Internal Group Structure” (Aug 2026); project structures as at 6 Jul 2026. Ownership % on connectors as charted. ⚑ = to verify. Companion: Valpre_Estate_Map.md</footer>
+
 <script>
 // node: {nm, j, role, cls(person/root/plain), badge, flag, banks, note, kids:[[pct, node]]}
 const P=(nm,j,note)=>({nm,j,role:note||'Individual',cls:'person',kids:[]});
- 
+
 // ============ COMBINED NETWORK (single sheet) ============
 // kinds: own = ownership (blue) · ubo = holding chain (navy) · x = cross-project link (amber dashed)
 const CN=(id,nm,j,x,y,role,opt)=>Object.assign({id,nm,j,x,y,role},opt||{});
 const COMBINED={
  title:"All Structures — Combined Sheet",
- sub:"Every entity on one canvas. Blue lines = ownership (% as charted, 6 Jul 2026). Amber dashed = CROSS-PROJECT links — where structures touch. Dashed boxes = external partners / in formation. Sub-stacks collapsed where detail lives on the other tabs.",
+ sub:"Every entity on one canvas. Blue lines = ownership (% as charted). Lower block = the Aug 2026 group reorganisation. Amber dashed = CROSS-PROJECT links — where structures touch. Dashed boxes = external partners / in formation. Sub-stacks collapsed where detail lives on the other tabs.",
  nodes:[
   // individuals & UBO
   CN('beyhum','Mohamed Ali Beyhum','Individual',260,30,'',{cls:'person'}),
@@ -143,6 +143,18 @@ const COMBINED={
   // cross-bridge nodes
   CN('lendco','TKY LendCo Ltd','Cayman',260,940,'DDN funding vehicle'),
   CN('zalana','Zalana Investment Holdings','BVI',40,940,'Investor',{cls:'formx'}),
+  // ===== NEW GROUP STRUCTURE (Aug 2026 reorganisation) =====
+  CN('ea','Erik Arveschoug (EA)','Individual',40,1120,'20 Class A · 20%',{cls:'person'}),
+  CN('aslanos','ASLANOS UK LIMITED','UK · 17412343',260,1120,'RA 75% / RAK 25% · dir RA'),
+  CN('fourshores','THE FOUR SHORES HOLDING LTD','UK · 17411209',480,1120,'AMH 60% / ATH 40% · dir AMH'),
+  CN('manammm','MANAMMM LIMITED','UK · 17411019',700,1120,'MAC 60% / NM 40% · dir MAC'),
+  CN('darsa','DARSA HOLDING LIMITED','UK · 17412798',920,1120,'SH 60% / DS 40% · dir SH'),
+  CN('vcgl','VALPRE CAPITAL GROUP LTD','UK · 17334888',420,1270,'Issuer of Class A & B · dirs EA,RA,AMH,MAC,SH',{cls:'root'}),
+  CN('vcpartners','VALPRE CAPITAL PARTNERS LTD','UK · 17338133',420,1420,'Acquires the VCUK business at market value'),
+  CN('vcukinv','VC UK INVESTMENTS LTD','UK · 17336942',900,1270,'Holds VCGL Class B · dirs MAC,SH,AMH,RA',{cls:'root',flag:'VCUK transfer pending'}),
+  CN('vcluxsa','VALPRE CAPITAL LUXEMBOURG SA','Luxembourg',1340,1270,'dirs A. Rizk, S. Nassar, SH'),
+  CN('vcinfra','VALPRE CAPITAL INFRASTRUCTURE','Greece · GCR 195483701000',1340,1420,'S.M.P.C. · MAC 100%, to transfer at par'),
+  CN('vcspain','VALPRE CAPITAL SPAIN SGEIC','Spain · to be formed',1700,1270,'dirs EA, R. Meletti, AMH',{cls:'formx',badge:'form'}),
  ],
  edges:[
   // shareholders → holdcos
@@ -181,29 +193,64 @@ const COMBINED={
   {f:'scsp',t:'pcl1',label:'pools investor equity into PCL1',kind:'x'},
   {f:'finco',t:'evcspvs',label:'Agios DC powered by ES Energy 2 PV+BESS (private wire)',kind:'x'},
   {f:'lendco',t:'3ky',label:'funds 3KY DDNs',kind:'x'},
+  // ===== NEW GROUP STRUCTURE (Aug 2026) =====
+  {f:'ea',t:'vcgl',label:'20% Class A',kind:'ubo'},
+  {f:'aslanos',t:'vcgl',label:'20% Class A',kind:'own'},
+  {f:'fourshores',t:'vcgl',label:'20% Class A',kind:'own'},
+  {f:'manammm',t:'vcgl',label:'20% Class A',kind:'own'},
+  {f:'darsa',t:'vcgl',label:'20% Class A',kind:'own'},
+  {f:'vcgl',t:'vcpartners',label:'100%',kind:'own'},
+  {f:'vcukinv',t:'vcgl',label:'Class B (non-voting) — 0% issued, pending',kind:'own'},
+  {f:'vcukinv',t:'vcuk',label:'100% — PENDING transfer',kind:'own'},
  ]
 };
- 
+
 const STRUCTS=[
-{tab:"Group & UBO", title:"Holding Companies — Shareholders & UBO", sub:"Slide 2. UBO chain right: Muhannad Hariri → MDOA (Cayman) → SCP MDOA (Monaco, 99.9% + 0.1% direct).", forest:[
- {sh:[[ '25%',P('Mohamed Ali Beyhum','—')],['25%',P('Rami Aslan','—')],['25%',P('Mazen AbouChakra','—')],['25%',P('Ahmad Hariri','—')]],
-  root:{nm:'VALPRE CAPITAL UK LIMITED',j:'UK · CN 11872154',role:'Central operating co — AR of Vittoria Partners LLP (FCA). Holdings on the “VCUK Holdings” tab.',cls:'root',banks:['Barclays — main operating account'],kids:[]}},
- {sh:[['50%',P('SCP MDOA †','Monaco')],['50%',P('Mazen AbouChakra','—')]],
-  root:{nm:'VALPRE CAPITAL INVESTMENTS SARL',j:'Luxembourg',role:'Investment HoldCo — see “VCI Holdings” tab.',cls:'root',banks:['Arab Bank','Banque BEMO'],kids:[]}},
- {sh:[['40%',P('Mazen AbouChakra','UK resident')],['40%',P('SCP MDOA †','Monaco')],['20%',P('Rami Aslan','UAE resident')]],
-  root:{nm:'VALPRE CAPITAL CAYMAN LIMITED',j:'Cayman Islands',role:'Cayman HoldCo — 31.96% Class A LP of Dublin fund.',cls:'root',banks:['Arab Bank'],kids:[]}},
+{tab:"Group Structure", title:"Valpre Capital — Group Structure (reorganisation)", sub:"Per the Valpre Internal Group Structure deck (Aug 2026). NEW top-of-house: five partners hold 20% Class A each of Valpre Capital Group Ltd (VCGL), four of them through personal holdcos. VCGL owns Valpre Capital Partners 100%. Class B of VCGL (non-voting) goes to Valpre Capital UK Investments as consideration for the VCUK business. ⚑ PENDING: VCUK shares not yet transferred; dividend-rights split to follow. Green = director to be appointed.", forest:[
+ {sh:[['20% Class A',P('Erik Arveschoug (EA)','Individual · 20 Class A shares')],
+      ['20% Class A',P('ASLANOS UK LIMITED','UK · 17412343 · RA 75% / RAK 25% · sole dir RA')],
+      ['20% Class A',P('THE FOUR SHORES HOLDING LTD','UK · 17411209 · AMH 60% / ATH 40% · sole dir AMH')],
+      ['20% Class A',P('MANAMMM LIMITED','UK · 17411019 · MAC 60% / NM 40% · sole dir MAC')],
+      ['20% Class A',P('DARSA HOLDING LIMITED','UK · 17412798 · SH 60% / DS 40% · sole dir SH')]],
+  root:{nm:'VALPRE CAPITAL GROUP LIMITED (VCGL)',j:'UK · 17334888',role:'Issuer of Class A and Class B · Directors: EA, RA, AMH, MAC, SH',cls:'root',
+   flag:'Class B (non-voting), 100% to VC UK Investments — waterfall 25% of dividends until £8m received, then 10%; also entitled to a portion of VCGL sale consideration',kids:[
+   ['100%',{nm:'VALPRE CAPITAL PARTNERS LIMITED',j:'UK · 17338133',role:'Acquires the VCUK business at market value · Directors: EA, RA, AMH, MAC, SH',kids:[]}],
+ ]}},
+ {sh:[], root:{nm:'VALPRE CAPITAL UK INVESTMENTS LIMITED',j:'UK · 17336942 · inc. 13 Jul 2026',role:'Holder of VCGL Class B · Directors: MAC, SH, AMH, RA',cls:'root',
+   flag:'0% Class B issued to date — pending',kids:[
+   ['100% (pending)',{nm:'VALPRE CAPITAL UK LIMITED',j:'UK · 11872154',role:'Operating co — portfolio on the “VCUK Holdings” tab',banks:['Barclays'],
+     flag:'Share transfer to VC UK Investments not yet completed',kids:[]}],
+ ]}},
+ {sh:[['25% · 350 A · div 1/5',P('Mohamed Ali Beyhum (MAB)','director to cease')],
+      ['25% · 350 A · div 1/5',P('Rami Aslan (RA)','director to be appointed')],
+      ['25% · 350 A · div 1/5',P('Mazen Abou Chakra (MAC)','—')],
+      ['25% · 350 A · div 2/5',P('Ahmad M. Hariri (AMH)','—')]],
+  root:{nm:'VCUK — current shareholders (pre-transfer)',j:'UK · 11872154 · inc. 9 Mar 2019 · SIC 64999',
+   role:'13 Montpelier Avenue, Bexley, England, DA5 3AP · Directors: MAC, SH, AMH · MAB to cease · RA to be appointed',cls:'root',badge:'form',kids:[]}},
+ {sh:[], root:{nm:'VALPRE CAPITAL LUXEMBOURG SA',j:'Luxembourg · incorporated',role:'Directors: A. Rizk, S. Nassar, SH',cls:'root',kids:[]}},
+ {sh:[['100% — to transfer at par',P('Mazen Abou Chakra (MAC)','Individual')]],
+  root:{nm:'VALPRE CAPITAL INFRASTRUCTURE',j:'Greece · S.M.P.C. · G.C.R. 195483701000',role:'Distinctive title: Valpre Capital Infrastructure',cls:'root',kids:[]}},
+ {sh:[], root:{nm:'VALPRE CAPITAL SPAIN SGEIC',j:'Spain · to be formed',role:'Directors: EA, R. Meletti, AMH',cls:'root',badge:'form',kids:[]}},
+]},
+{tab:"Legacy HoldCos", title:"Legacy holding companies — pre-reorganisation", sub:"⚑ These were the top of the house before the Aug 2026 reorganisation and are NOT shown on the new deck. They still appear as owners on the project tabs (Dublin fund, Athens, EVC Energy, NREK1), so they are retained here pending confirmation of what happens to them. Verify with the deck author.", forest:[
+ {sh:[['50%',P('SCP MDOA †','Monaco')],['50%',P('Mazen Abou Chakra','—')]],
+  root:{nm:'VALPRE CAPITAL INVESTMENTS SARL',j:'Luxembourg',role:'Investment HoldCo — see “VCI Holdings” tab',cls:'root',banks:['Arab Bank','Banque BEMO'],flag:'Not addressed in the Aug 2026 group deck',kids:[]}},
+ {sh:[['40%',P('Mazen Abou Chakra','UK resident')],['40%',P('SCP MDOA †','Monaco')],['20%',P('Rami Aslan','UAE resident')]],
+  root:{nm:'VALPRE CAPITAL CAYMAN LIMITED',j:'Cayman Islands',role:'Cayman HoldCo — 31.96% Class A LP of Dublin fund',cls:'root',banks:['Arab Bank'],flag:'Not addressed in the Aug 2026 group deck',kids:[]}},
  {sh:[['100%',P('Muhannad Hariri','non-EU resident; +0.1% of SCP MDOA directly')]],
   root:{nm:'MDOA LIMITED',j:'Cayman Islands',role:'UBO vehicle',cls:'root',kids:[['99.9%',{nm:'SCP MDOA †',j:'Monaco',role:'Holds 50% VCI · 40% VCCL',kids:[]}]]}},
 ]},
-{tab:"VCUK Holdings", title:"Valpre Capital UK Limited — Portfolio Holdings", sub:"Slide 3. Direct stakes; each subsidiary has its own tab.", forest:[
- {sh:[], root:{nm:'VALPRE CAPITAL UK LIMITED',j:'UK · CN 11872154',role:'AR of Vittoria Partners LLP, FCA-regulated',cls:'root',banks:['Barclays'],kids:[
-  ['17.6%',{nm:'EVC Kilt Limited',j:'UK · 13949208',role:'→ 2 UK energy centres',kids:[]}],
-  ['12.5% econ · 64.3% vote',{nm:'VC TKY Limited',j:'UK · 13716369',role:'Three Kings Yard, Mayfair',kids:[]}],
-  ['8.73% A · 55% C',{nm:'VC PBSA1 Limited',j:'UK · 15466892',role:'The Roc Club → ROC / Alumrose LLP',kids:[]}],
-  ['50% · PSC ≥75%',{nm:'ROC PBSA Partners Ltd',j:'UK · 16777388',role:'PBSA JV with Katch',kids:[]}],
-  ['A 7,925 · C 75',{nm:'VC PCL1 Limited',j:'UK · 15182560',role:'Yeoman Square → YSK SPVs',kids:[]}],
-  ['75% A',{nm:'Valpre Capital DC Greece Ltd',j:'UK · 17290322',role:'→ FinCo · 4 Greek DCs (GEMI assigned)',kids:[]}],
-  ['1.3%',{nm:'Vennre Ventures Holding (VVH) Ltd',j:'UK · 13923351',role:'Vennre private-markets platform',kids:[]}],
+{tab:"VCUK Holdings", title:"Valpre Capital UK Limited — Portfolio Holdings", sub:"Direct stakes; each subsidiary has its own tab. Boards per the Aug 2026 group deck. VCUK itself is to pass to Valpre Capital UK Investments Ltd (pending) — see “Group Structure”.", forest:[
+ {sh:[], root:{nm:'VALPRE CAPITAL UK LIMITED',j:'UK · 11872154 · inc. 9 Mar 2019',role:'AR of Vittoria Partners LLP, FCA-regulated · SIC 64999 · Directors: MAC, SH, AMH (MAB to cease, RA to be appointed)',cls:'root',banks:['Barclays'],kids:[
+  ['17.6%',{nm:'EVC Kilt Limited',j:'UK · 13949208',role:'→ 2 UK energy centres · Directors: MAC, SH, AMH, A. S. Khamissa, C. Piñar Celestino',kids:[]}],
+  ['12.5% econ · 64.3% vote',{nm:'VC TKY Limited',j:'UK · 13716369',role:'Three Kings Yard, Mayfair · Directors: MAC, SH, AMH',kids:[]}],
+  ['8.73% A · 55% C',{nm:'VC PBSA1 Limited',j:'UK · 15466892',role:'The Roc Club → ROC / Alumrose LLP · Directors: MAC, SH, AMH, Y. Sbai, G. J. Thomas',kids:[]}],
+  ['50% · PSC ≥75%',{nm:'ROC PBSA Partners Ltd',j:'UK · 16777388 · inc. 10 Oct 2025',role:'PBSA JV with Katch · formerly 31 Amelia Street Ltd, renamed 25 May 2026 · Directors: MAC, SH, AMH, Y. Sbai',kids:[]}],
+  ['A 7,925 · C 75',{nm:'VC PCL1 Limited',j:'UK · 15182560',role:'Yeoman Square → YSK SPVs · Directors: MAC, SH, AMH',kids:[]}],
+  ['75% A',{nm:'Valpre Capital DC Greece Ltd',j:'UK · 17290322 · inc. 20 Jun 2026',role:'Directors: MAC, SH, AMH',kids:[
+    ['100%',{nm:'Valpre Capital DC Greece FinCo Ltd',j:'UK · 17296060 · inc. 23 Jun 2026',role:'→ 4 Greek DCs @70% · Directors: MAC, SH, AMH',kids:[]}],
+  ]}],
+  ['1.3%',{nm:'Vennre Ventures Holding (VVH) Ltd',j:'UK · 13923351',role:'Vennre private-markets platform · Directors: M. Z. Mabsout, A. Safar Al-Halabi',kids:[]}],
  ]}},
 ]},
 {tab:"VCI Holdings", title:"Valpre Capital Investments SARL — Portfolio", sub:"Slide 10. Lux RCS numbers to be confirmed per chart.", forest:[
@@ -325,12 +372,12 @@ const STRUCTS=[
   root:{nm:'Evolv Properties Limited',j:'Ireland · CRO 638733',role:'Voluntary strike-off effective 4 Nov 2024',cls:'root',badge:'diss',kids:[]}},
 ]},
 ];
- 
+
 // ---------- layout engine ----------
 const NW=190, HGAP=26, VGAP=86, SHGAP=30, FOREST_GAP=90, TOP=70;
 const badgeMap={live:['b-live','ACTIVE'],sold:['b-sold','SOLD'],form:['b-form','IN FORMATION'],diss:['b-diss','DISSOLVED'],exit:['b-exit','LEGACY']};
 let nodesFlat=[], edges=[], curEdges=[], allNodes=[], curTitle='';
- 
+
 function measure(n){ // subtree width
   if(!n.kids || !n.kids.length){ n._w = NW; return NW; }
   let w = 0;
@@ -492,7 +539,7 @@ function openPanel(n, structTitle){
    <dl><dt>Jurisdiction / registration</dt><dd>${n.j}</dd>
    <dt>Role</dt><dd>${n.role||'—'}</dd>
    <dt>Banking / lenders</dt>${banks}
-   <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">Group Structure — Detailed Entity Charts, 6 Jul 2026</dd></dl>
+   <dt>Source</dt><dd style="font-size:11px;color:var(--grey2)">Valpre Internal Group Structure (Aug 2026) + Detailed Entity Charts (6 Jul 2026)</dd></dl>
    ${n.flag?`<div class="flagbox">⚑ ${n.flag}</div>`:''}`;
   document.getElementById('panel').classList.add('open');
 }
@@ -532,4 +579,3 @@ renderStruct(-1); apply();
 </script>
 </body>
 </html>
- 
